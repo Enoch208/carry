@@ -3,16 +3,12 @@
 import { useRef, useState } from "react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Icon, ArrowRightIcon } from "@/components/icons";
-import { capture, sendChat } from "@/lib/api";
-import { NAMESPACES } from "@/lib/policy";
+import { sendChat } from "@/lib/api";
+import { AGENT_LABELS } from "@/lib/agents";
 import { ReceiptPanel } from "@/components/app/ReceiptPanel";
+import { CaptureForm } from "@/components/app/CaptureForm";
 import { cn } from "@/lib/cn";
-import type { AgentId, AnswerReceipt, NamespaceId } from "@/lib/types";
-
-const AGENT_LABELS: Record<AgentId, string> = {
-  "agent-a": "Agent A · GPT-4o",
-  "agent-b": "Agent B · Claude",
-};
+import type { AgentId, AnswerReceipt } from "@/lib/types";
 
 const AGENT_ROLES: Record<AgentId, string> = {
   "agent-a": "writer",
@@ -43,71 +39,8 @@ function appendReceiptToStorage(receipt: AnswerReceipt) {
     const trimmed = existing.slice(-20);
     localStorage.setItem("carry:receipts", JSON.stringify(trimmed));
   } catch {
+    try { localStorage.removeItem("carry:receipts"); } catch {}
   }
-}
-
-type CaptureFormProps = {
-  agentId: AgentId;
-};
-
-function CaptureForm({ agentId }: CaptureFormProps) {
-  const [namespace, setNamespace] = useState<NamespaceId>(NAMESPACES[0]);
-  const [content, setContent] = useState("");
-  const [status, setStatus] = useState<"idle" | "pending" | "done">("idle");
-
-  async function handleCapture(e: React.FormEvent) {
-    e.preventDefault();
-    if (!content.trim()) return;
-    setStatus("pending");
-    try {
-      await capture({ namespace, content: content.trim(), sourceAgent: agentId });
-      setContent("");
-      setStatus("done");
-      setTimeout(() => setStatus("idle"), 2500);
-    } catch {
-      setStatus("idle");
-    }
-  }
-
-  return (
-    <div className="border-t border-dashed border-white/20 px-6 py-4">
-      <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.2em] text-faint">
-        Capture a fact
-      </p>
-      <form onSubmit={handleCapture} className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <select
-            value={namespace}
-            onChange={(e) => setNamespace(e.target.value as NamespaceId)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs text-fg focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
-            {NAMESPACES.map((ns) => (
-              <option key={ns} value={ns}>
-                {ns}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Enter a fact to remember…"
-            className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg placeholder:text-faint focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          />
-          <button
-            type="submit"
-            disabled={status === "pending" || !content.trim()}
-            className="rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-accent-fg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {status === "pending" ? "Saving…" : "Save"}
-          </button>
-        </div>
-        {status === "done" && (
-          <p className="text-xs text-success">Fact captured successfully.</p>
-        )}
-      </form>
-    </div>
-  );
 }
 
 type ChatProps = {
@@ -120,8 +53,7 @@ export function Chat({ agentId }: ChatProps) {
   const [pending, setPending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  async function handleSend(e: React.FormEvent) {
-    e.preventDefault();
+  async function submit() {
     const text = query.trim();
     if (!text || pending) return;
 
@@ -145,10 +77,15 @@ export function Chat({ agentId }: ChatProps) {
     }
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    void submit();
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      void handleSend(e as unknown as React.FormEvent);
+      void submit();
     }
   }
 
@@ -201,7 +138,7 @@ export function Chat({ agentId }: ChatProps) {
         {agentId === "agent-a" && <CaptureForm agentId={agentId} />}
 
         <div className="border-t border-dashed border-white/20 px-6 py-4">
-          <form onSubmit={handleSend} className="flex items-end gap-3">
+          <form onSubmit={handleSubmit} className="flex items-end gap-3">
             <textarea
               ref={textareaRef}
               value={query}

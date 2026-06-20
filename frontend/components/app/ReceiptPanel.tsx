@@ -7,12 +7,8 @@ import {
   BlockedIcon,
 } from "@/components/icons";
 import { cn } from "@/lib/cn";
+import { AGENT_LABELS } from "@/lib/agents";
 import type { AnswerReceipt } from "@/lib/types";
-
-const AGENT_LABELS: Record<string, string> = {
-  "agent-a": "Agent A · GPT-4o",
-  "agent-b": "Agent B · Claude",
-};
 
 type ReceiptPanelProps = {
   receipt: AnswerReceipt;
