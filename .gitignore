@@ -6,5 +6,6 @@ PRD-*.md
 # OS
 .DS_Store
 
-# SDD scratch / progress ledger
+# SDD scratch / progress ledger + agent worktrees
 .superpowers/
+.claude/
