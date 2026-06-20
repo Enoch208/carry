@@ -1,0 +1,10 @@
+# Internal working files — never commit
+de.json
+CLAUDE.md
+PRD-*.md
+
+# OS
+.DS_Store
+
+# SDD scratch / progress ledger
+.superpowers/

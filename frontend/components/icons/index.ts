@@ -1,0 +1,25 @@
+export { Icon } from "./Icon";
+
+export {
+  ShieldKeyIcon as GateIcon,
+  CheckmarkBadge01Icon as ReceiptIcon,
+  AiBrain01Icon as CrossModelIcon,
+  Layers01Icon as NamespaceIcon,
+  Blockchain01Icon as AnchorIcon,
+  ShieldBanIcon as RevokeIcon,
+  ToggleOnIcon as MatrixIcon,
+  FingerprintPatternIcon as OwnedIcon,
+  SecurityCheckIcon as VerifiedIcon,
+  CheckmarkCircle02Icon as CheckIcon,
+  Cancel01Icon as BlockedIcon,
+  QuillWrite01Icon as TeachIcon,
+  Database01Icon as MemoryIcon,
+  ArrowRight01Icon as ArrowRightIcon,
+  ArrowUpRight01Icon as ArrowUpRightIcon,
+  Menu01Icon as MenuIcon,
+  Cancel01Icon as CloseIcon,
+  Add01Icon as PlusIcon,
+  Copy01Icon as CopyIcon,
+  Link01Icon as LinkIcon,
+  Github01Icon as GithubIcon,
+} from "@hugeicons/core-free-icons";
