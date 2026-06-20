@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "What gets stored on Walrus?",
-    a: "Every memory is written to Walrus as a blob, and each answer re-checks that those blobs still resolve — so the receipt’s “verified” badge is real, not cosmetic. You can also anchor the full Answer Receipt as its own Walrus blob for tamper-evident provenance. Per-agent Seal encryption and MemWal (Walrus Memory) are next on the roadmap.",
+    a: "By default every memory is a public Walrus blob, and each answer re-checks that those blobs still resolve — so the receipt’s “verified” badge is real, not cosmetic. You can also anchor the full Answer Receipt as its own Walrus blob for tamper-evident provenance. Carry also ships a MemWal (Walrus Memory) mode that stores memory Seal-encrypted via the Walrus Memory SDK.",
   },
   {
     q: "Does it work across different models?",
