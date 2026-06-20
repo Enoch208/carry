@@ -9,3 +9,12 @@ PRD-*.md
 # SDD scratch / progress ledger + agent worktrees
 .superpowers/
 .claude/
+
+# Node / build artifacts (monorepo-wide)
+node_modules
+.next/
+out/
+dist/
+*.tsbuildinfo
+.env*.local
+.vercel

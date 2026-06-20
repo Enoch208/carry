@@ -1,0 +1,19 @@
+{
+  "name": "carry",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @carry/web",
+    "build": "npm run build -w @carry/web",
+    "lint": "npm run lint -w @carry/web",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "vitest": "^4.1.9"
+  }
+}
