@@ -9,27 +9,37 @@ import { AnchorButton } from "@/components/app/AnchorButton";
 import { ReceiptPanel } from "@/components/app/ReceiptPanel";
 import type { AnswerReceipt, Memory } from "@/lib/types";
 
-function readReceiptsFromStorage(): AnswerReceipt[] {
-  if (typeof window === "undefined") return [];
+const EMPTY: AnswerReceipt[] = [];
+let cachedRaw: string | null = null;
+let cachedValue: AnswerReceipt[] = EMPTY;
+
+function getReceiptsSnapshot(): AnswerReceipt[] {
+  if (typeof window === "undefined") return EMPTY;
+  const raw = window.localStorage.getItem("carry:receipts");
+  if (raw === cachedRaw) return cachedValue;
+  cachedRaw = raw;
   try {
-    const raw = localStorage.getItem("carry:receipts");
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as AnswerReceipt[];
-    return [...parsed].reverse();
+    const parsed = raw ? (JSON.parse(raw) as AnswerReceipt[]) : [];
+    cachedValue = parsed.slice().reverse();
   } catch {
-    return [];
+    cachedValue = EMPTY;
   }
+  return cachedValue;
 }
 
-const emptyReceipts: AnswerReceipt[] = [];
+function getServerReceiptsSnapshot(): AnswerReceipt[] {
+  return EMPTY;
+}
+
+function subscribeReceipts(onChange: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+}
 
 export function Dashboard() {
   const [memories, setMemories] = useState<Memory[]>([]);
-  const receipts = useSyncExternalStore(
-    () => () => {},
-    readReceiptsFromStorage,
-    () => emptyReceipts,
-  );
+  const receipts = useSyncExternalStore(subscribeReceipts, getReceiptsSnapshot, getServerReceiptsSnapshot);
 
   useEffect(() => {
     void getMemories().then(({ memories: m }) => setMemories(m));
