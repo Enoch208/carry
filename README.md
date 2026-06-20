@@ -1,14 +1,15 @@
 <div align="center">
 
-<img src="apps/web/public/carry_logo.png" alt="Carry — proof-carrying memory for AI agents" width="104" />
+<img src="assets/cover.svg" alt="Carry — proof-carrying memory for AI agents" width="100%" />
 
-# Carry
+&nbsp;
 
+[![CI](https://github.com/Enoch208/carry/actions/workflows/ci.yml/badge.svg)](https://github.com/Enoch208/carry/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-13%20passing-10b981)](#tests)
 [![Walrus](https://img.shields.io/badge/storage-Walrus%20testnet-4DA2FF)](https://www.walrus.xyz)
 [![Seal](https://img.shields.io/badge/encryption-Seal%20via%20MemWal-2563eb)](https://github.com/MystenLabs/MemWal)
-[![Models](https://img.shields.io/badge/models-GPT--4o%20·%20Claude-FF9900)](#how-i-integrated-walrus-seal--memwal)
-![Stack](https://img.shields.io/badge/Next.js%2016%20·%20React%2019%20·%20TypeScript%20·%20npm%20workspaces-1f1f23)
+![Stack](https://img.shields.io/badge/Next.js%2016%20·%20React%2019%20·%20TypeScript-1f1f23)
 
 ### Proof-carrying memory for AI agents — control what every agent can use, and prove it on every answer.
 

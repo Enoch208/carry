@@ -1,0 +1,35 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Carry — proof-carrying memory for AI agents">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="0%" r="72%">
+      <stop offset="0%" stop-color="#4DA2FF" stop-opacity="0.22"/>
+      <stop offset="55%" stop-color="#4DA2FF" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#4DA2FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#ffffff" fill-opacity="0.05"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="360" fill="#050505"/>
+  <rect width="1200" height="360" fill="url(#dots)"/>
+  <rect width="1200" height="360" fill="url(#glow)"/>
+
+  <rect x="40" y="40" width="1120" height="280" fill="none" stroke="#27272A" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <text x="80" y="116" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" letter-spacing="6" fill="#4DA2FF">PROOF-CARRYING MEMORY FOR AI AGENTS</text>
+
+  <text x="76" y="210" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-size="104" font-weight="700" letter-spacing="-3" fill="#FAFAFA">Carry</text>
+  <rect x="368" y="182" width="20" height="20" fill="#4DA2FF"/>
+
+  <text x="80" y="258" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-size="25" font-weight="400" fill="#A1A1AA">Control what every agent can use — and prove it on every answer.</text>
+
+  <rect x="80" y="286" width="1040" height="1" fill="url(#hair)"/>
+
+  <text x="80" y="307" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" letter-spacing="2" fill="#71717A">BUILT ON WALRUS · SEAL · MEMWAL</text>
+  <text x="1120" y="307" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" letter-spacing="2" fill="#71717A">SUI OVERFLOW 2026</text>
+</svg>
