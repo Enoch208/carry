@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Icon, MemoryIcon, ReceiptIcon } from "@/components/icons";
 import { getMemories } from "@/lib/api";
@@ -21,9 +21,15 @@ function readReceiptsFromStorage(): AnswerReceipt[] {
   }
 }
 
+const emptyReceipts: AnswerReceipt[] = [];
+
 export function Dashboard() {
   const [memories, setMemories] = useState<Memory[]>([]);
-  const [receipts] = useState<AnswerReceipt[]>(readReceiptsFromStorage);
+  const receipts = useSyncExternalStore(
+    () => () => {},
+    readReceiptsFromStorage,
+    () => emptyReceipts,
+  );
 
   useEffect(() => {
     void getMemories().then(({ memories: m }) => setMemories(m));
