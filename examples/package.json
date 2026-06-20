@@ -1,0 +1,16 @@
+{
+  "name": "@carry/example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=../apps/web/.env.local --import tsx ./agent-memory.ts"
+  },
+  "dependencies": {
+    "@carry/core": "*",
+    "@carry/walrus": "*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}

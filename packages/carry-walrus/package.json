@@ -2,6 +2,7 @@
   "name": "@carry/walrus",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Walrus storage adapters for Carry — store and verify memory blobs over the Walrus HTTP API.",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
