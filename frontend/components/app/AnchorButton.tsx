@@ -14,7 +14,8 @@ type AnchorButtonProps = {
 type AnchorState =
   | { status: "idle" }
   | { status: "pending" }
-  | { status: "done"; blobId: string };
+  | { status: "done"; blobId: string }
+  | { status: "error" };
 
 export function AnchorButton({ receipt }: AnchorButtonProps) {
   const [state, setState] = useState<AnchorState>({ status: "idle" });
@@ -26,7 +27,7 @@ export function AnchorButton({ receipt }: AnchorButtonProps) {
       const { blobId } = await anchorReceipt(receipt);
       setState({ status: "done", blobId });
     } catch {
-      setState({ status: "idle" });
+      setState({ status: "error" });
     }
   }
 
@@ -35,7 +36,7 @@ export function AnchorButton({ receipt }: AnchorButtonProps) {
       <GradientButton
         size="sm"
         onClick={() => { void handleClick(); }}
-        className={state.status !== "idle" ? "pointer-events-none opacity-60" : ""}
+        className={state.status === "pending" || state.status === "done" ? "pointer-events-none opacity-60" : ""}
       >
         <Icon icon={AnchorIcon} size={15} aria-hidden />
         {state.status === "pending" ? "Anchoring…" : "Anchor on Walrus"}
@@ -49,6 +50,10 @@ export function AnchorButton({ receipt }: AnchorButtonProps) {
             Verified
           </Badge>
         </div>
+      )}
+
+      {state.status === "error" && (
+        <p className="text-xs text-danger">Anchor failed — try again</p>
       )}
     </div>
   );

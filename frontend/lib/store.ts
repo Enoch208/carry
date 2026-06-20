@@ -1,5 +1,6 @@
 import type { AgentId, Memory, NamespaceId, Policy } from "./types";
 import { MockWalrus, type WalrusClient } from "./walrus";
+import { WalrusHttp } from "./walrus-http";
 
 const seed = (): { memories: Memory[]; policy: Policy } => ({
   memories: [
@@ -16,7 +17,10 @@ const seed = (): { memories: Memory[]; policy: Policy } => ({
 class Store {
   private state = seed();
   private seq = 100;
-  readonly walrus: WalrusClient = new MockWalrus();
+  readonly walrus: WalrusClient =
+    process.env.CARRY_MODE === "mock" || !process.env.WALRUS_PUBLISHER
+      ? new MockWalrus()
+      : new WalrusHttp();
 
   list() { return this.state.memories; }
   getPolicy() { return this.state.policy; }
