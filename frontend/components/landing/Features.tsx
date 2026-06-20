@@ -41,7 +41,7 @@ const pill =
   "rounded-lg border border-white/10 bg-gradient-to-b from-[#222] to-[#111] px-3 py-1.5 text-xs text-gray-300 shadow-[0_4px_10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] whitespace-nowrap";
 
 const badge =
-  "flex items-center gap-3 whitespace-nowrap rounded-2xl border border-white/10 bg-gradient-to-b from-[#2a2a2a] to-[#111] px-5 py-2.5 shadow-[0_10px_20px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.15)] [animation:carry-badge-glow_4s_ease-in-out_infinite]";
+  "flex h-11 items-center gap-3 whitespace-nowrap rounded-2xl border border-white/10 bg-gradient-to-b from-[#2a2a2a] to-[#111] px-5 shadow-[0_10px_20px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.15)] [animation:carry-badge-glow_4s_ease-in-out_infinite]";
 
 function Check() {
   return (
@@ -163,7 +163,7 @@ function ReceiptsCard() {
       title="Answer Receipts"
       body="Every memory-based answer carries a receipt — memories used, namespaces, source agent, and a Walrus reference, verified."
     >
-      <div className="relative flex flex-1 flex-col justify-center gap-2.5">
+      <div className="relative flex flex-1 flex-col justify-center gap-2">
         <span
           aria-hidden
           className="absolute left-[5px] top-3 bottom-3 w-px bg-gradient-to-b from-emerald-500/50 via-white/15 to-transparent"
@@ -171,7 +171,7 @@ function ReceiptsCard() {
         {receipts.map((entry) => (
           <div key={entry.ref} className={cn("relative pl-5", entry.opacity)}>
             <span className="absolute left-0 top-1/2 size-2.5 -translate-y-1/2 rounded-full border-2 border-[#050505] bg-gradient-to-b from-emerald-300 to-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
-            <div className="flex flex-col gap-1 rounded-lg border border-white/10 bg-gradient-to-b from-[#222] to-[#111] p-2.5 shadow-[0_6px_15px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            <div className="flex flex-col gap-1 rounded-lg border border-white/10 bg-gradient-to-b from-[#222] to-[#111] p-2 shadow-[0_6px_15px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)]">
               <div className="flex items-center justify-between text-[9px] uppercase tracking-wider text-white/50">
                 <span className="font-mono text-emerald-400/80">{entry.time}</span>
                 <span>{entry.agent}</span>
