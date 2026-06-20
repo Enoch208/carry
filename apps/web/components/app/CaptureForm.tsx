@@ -34,6 +34,7 @@ export function CaptureForm({ agentId }: CaptureFormProps) {
 
   return (
     <div className="border-t border-dashed border-white/20 px-6 py-4">
+      <div className="mx-auto w-full max-w-3xl">
       <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.2em] text-faint">
         Capture a fact
       </p>
@@ -79,6 +80,7 @@ export function CaptureForm({ agentId }: CaptureFormProps) {
           <p className="text-xs text-danger">Walrus store failed — check the connection and try again.</p>
         )}
       </form>
+      </div>
     </div>
   );
 }

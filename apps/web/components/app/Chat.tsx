@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Icon, ArrowRightIcon } from "@/components/icons";
+import { Icon, ArrowRightIcon, MemoryIcon } from "@/components/icons";
 import { sendChat } from "@/lib/api";
 import { AGENT_LABELS } from "@/lib/agents";
 import { ReceiptPanel } from "@/components/app/ReceiptPanel";
@@ -102,43 +102,63 @@ export function Chat({ agentId }: ChatProps) {
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto px-6 py-6">
-          {messages.length === 0 && (
-            <p className="text-center text-sm text-faint">
-              Ask {AGENT_LABELS[agentId]} anything…
-            </p>
-          )}
-          <div className="flex flex-col gap-4">
-            {messages.map((msg) => {
-              if (msg.role === "user") {
+          {messages.length === 0 && !pending ? (
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <div className="mb-5 grid size-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.03] text-accent">
+                <Icon icon={MemoryIcon} size={22} aria-hidden />
+              </div>
+              <p className="max-w-sm text-sm leading-relaxed text-muted">
+                {agentId === "agent-a"
+                  ? "Capture a fact below — then ask me to recall it. Every answer comes with a verifiable receipt."
+                  : "Ask about anything in your allowed memory. Every answer comes with a verifiable receipt."}
+              </p>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                {["Am I allergic to anything?", "What do I like to eat?"].map((ex) => (
+                  <button
+                    key={ex}
+                    type="button"
+                    onClick={() => setQuery(ex)}
+                    className="rounded-full border border-white/15 bg-white/[0.03] px-3 py-1.5 text-xs text-gray-400 transition-colors hover:border-accent/40 hover:text-white"
+                  >
+                    {ex}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+              {messages.map((msg) => {
+                if (msg.role === "user") {
+                  return (
+                    <div key={msg.id} className="flex justify-end">
+                      <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-accent/15 px-4 py-3 text-sm text-white">
+                        {msg.text}
+                      </div>
+                    </div>
+                  );
+                }
                 return (
-                  <div key={msg.id} className="flex justify-end">
-                    <div className="max-w-[80%] self-end rounded-2xl rounded-br-sm bg-accent/15 px-4 py-3 text-sm text-white">
+                  <div key={msg.id} className="flex w-full flex-col gap-3 self-start">
+                    <div className="max-w-[85%] self-start rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-relaxed text-gray-300">
                       {msg.text}
                     </div>
+                    <ReceiptPanel receipt={msg.receipt} />
                   </div>
                 );
-              }
-              return (
-                <div key={msg.id} className="flex flex-col gap-3 self-start w-full max-w-[90%]">
-                  <div className="self-start rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-relaxed text-gray-300">
-                    {msg.text}
-                  </div>
-                  <ReceiptPanel receipt={msg.receipt} />
+              })}
+              {pending && (
+                <div className="self-start rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-gray-500">
+                  <span className="animate-pulse">Thinking…</span>
                 </div>
-              );
-            })}
-            {pending && (
-              <div className="self-start rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-gray-500">
-                <span className="animate-pulse">Thinking…</span>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
 
         {agentId === "agent-a" && <CaptureForm agentId={agentId} />}
 
         <div className="border-t border-dashed border-white/20 px-6 py-4">
-          <form onSubmit={handleSubmit} className="flex items-end gap-3">
+          <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-3xl items-end gap-3">
             <textarea
               ref={textareaRef}
               value={query}
