@@ -99,10 +99,17 @@ Without keys, Carry runs end-to-end in **mock mode** — no network, same UX.
 3. **Live revoke** — In **Access**, flip `agent-b × health` off. Ask again → *"I cannot access your Health memory"* with `health blocked by policy`. Nothing leaks — the gate never fetched it.
 4. **Anchor** — On the **Dashboard**, anchor the receipt on Walrus → real blob ID, verified.
 
+## Memory modes
+
+Carry runs in two modes, selected by `CARRY_MEMORY`:
+
+- **Walrus (default)** — every memory is a **public** Walrus blob, so a receipt's "verified" badge is an independent aggregator `GET` anyone can repeat (the proof links above). This is the strongest verifiable-receipt story.
+- **MemWal** (`CARRY_MEMORY=memwal`) — memory is stored through [MemWal](https://github.com/MystenLabs/MemWal) (Walrus Memory): **Seal-encrypted** and embedding-indexed server-side, addressed by a real Walrus `blob_id`. Private by design (served via the relayer, not the public aggregator). Validated live with `apps/web/scripts/memwal-smoke.mjs`.
+
 ## Roadmap
 
-- **Now** — gate-before-generation, Answer Receipts, memory written to & verified on Walrus, cross-model GPT-4o ↔ Claude.
-- **Next** — [MemWal](https://github.com/MystenLabs/MemWal) (Walrus Memory) as the memory layer, Seal per-agent encryption, anchor-by-default, full audit log.
+- **Now** — gate-before-generation, Answer Receipts, memory on Walrus with public verification, cross-model GPT-4o ↔ Claude, and MemWal/Seal mode.
+- **Next** — MemWal-backed semantic recall inside the gate path, anchor-by-default, full audit log.
 - **Vision** — multi-agent coordination, a drop-in adapter SDK, mainnet.
 
 ## Stack
