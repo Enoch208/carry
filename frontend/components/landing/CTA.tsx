@@ -18,7 +18,7 @@ export function CTA() {
         and watch the receipt tell the truth.
       </p>
       <div className="relative z-10 flex flex-col items-center gap-4 sm:flex-row">
-        <GradientButton href="#">Launch the demo</GradientButton>
+        <GradientButton href="/chat-a">Launch the demo</GradientButton>
         <OutlineButton href="https://github.com" target="_blank" rel="noreferrer">
           View on GitHub
         </OutlineButton>

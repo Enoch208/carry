@@ -27,7 +27,7 @@ export function Hero() {
           was allowed, and where it lives on Walrus.
         </p>
         <div className="flex flex-col items-center gap-6 sm:flex-row">
-          <GradientButton href="#cta">Launch the demo</GradientButton>
+          <GradientButton href="/chat-a">Launch the demo</GradientButton>
           <TextButton href="#how">See how it works</TextButton>
         </div>
       </div>

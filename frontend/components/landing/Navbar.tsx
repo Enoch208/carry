@@ -61,7 +61,7 @@ export function Navbar() {
               >
                 GitHub
               </OutlineButton>
-              <GradientButton href="#cta" size="sm" className="hidden sm:inline-flex">
+              <GradientButton href="/chat-a" size="sm" className="hidden sm:inline-flex">
                 Launch demo
               </GradientButton>
               <button
@@ -92,7 +92,7 @@ export function Navbar() {
                 {link.label}
               </a>
             ))}
-            <GradientButton href="#cta" size="sm" className="mt-3 w-full">
+            <GradientButton href="/chat-a" size="sm" className="mt-3 w-full">
               Launch demo
             </GradientButton>
           </div>
