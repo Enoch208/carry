@@ -83,6 +83,15 @@ node --env-file=apps/web/.env.local apps/web/scripts/seed-walrus.mjs
 
 Without keys, Carry runs end-to-end in **mock mode** — no network, same UX.
 
+## Deploy (Vercel)
+
+1. Import the repo into Vercel.
+2. Set **Root Directory** to `apps/web` — Vercel detects the npm workspace and installs from the repo root, so `@carry/core` and `@carry/walrus` resolve.
+3. Add the four env vars (`WALRUS_PUBLISHER`, `WALRUS_AGGREGATOR`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`).
+4. Deploy. Framework preset and build command are auto-detected (Next.js / `next build`).
+
+> The demo store is in-process, so for the most reliable **live-revoke** demo run locally (`npm run dev`); MemWal-backed shared persistence is on the roadmap.
+
 ## The demo (≈90 seconds)
 
 1. **Teach** — In **Chat A** (GPT-4o), capture `Allergic to penicillin` → stored on Walrus, real blob ID shown.
