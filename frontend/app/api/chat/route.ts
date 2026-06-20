@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const verifiedRefs = new Set(memories.map((m) => m.walrusRef));
   const receipt = buildReceipt({
     agentId,
-    answerId: "ans-" + store.list().length + "-" + memories.length,
+    answerId: `ans-${crypto.randomUUID()}`,
     used: memories,
     blockedNamespaces,
     verifiedRefs,

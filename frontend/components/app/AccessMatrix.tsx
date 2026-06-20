@@ -5,12 +5,10 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getPolicy, setAccess } from "@/lib/api";
 import { NAMESPACES } from "@/lib/policy";
 import { cn } from "@/lib/cn";
+import { AGENT_LABELS } from "@/lib/agents";
 import type { AgentId, NamespaceId, Policy } from "@/lib/types";
 
-const AGENTS: { id: AgentId; label: string }[] = [
-  { id: "agent-a", label: "Agent A · GPT-4o" },
-  { id: "agent-b", label: "Agent B · Claude" },
-];
+const AGENTS: { id: AgentId; label: string }[] = (["agent-a", "agent-b"] as AgentId[]).map((id) => ({ id, label: AGENT_LABELS[id] }));
 
 type PillSwitchProps = {
   checked: boolean;

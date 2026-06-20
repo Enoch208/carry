@@ -19,7 +19,7 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-dvh w-56 flex-col border-r border-dashed border-white/20 bg-[#050505]">
-      <div className="flex items-center gap-1.5 border-b border-dashed border-white/20 px-5 py-5">
+      <div aria-label="Carry" className="flex items-center gap-1.5 border-b border-dashed border-white/20 px-5 py-5">
         <Image
           src="/carry_mark.png"
           alt=""
@@ -27,7 +27,7 @@ export function Sidebar() {
           height={662}
           className="h-5 w-auto"
         />
-        <span className="text-xl font-light tracking-[0.14em] text-white">
+        <span aria-hidden className="text-xl font-light tracking-[0.14em] text-white">
           ARRY
         </span>
       </div>
