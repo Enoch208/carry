@@ -18,7 +18,7 @@ class Store {
   private state = seed();
   private seq = 100;
   readonly walrus: WalrusClient =
-    process.env.CARRY_MODE === "mock" || !process.env.WALRUS_PUBLISHER
+    process.env.CARRY_MODE === "mock" || !process.env.WALRUS_PUBLISHER || !process.env.WALRUS_AGGREGATOR
       ? new MockWalrus()
       : new WalrusHttp();
 

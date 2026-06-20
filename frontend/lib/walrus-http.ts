@@ -10,6 +10,7 @@ export class WalrusHttp implements WalrusClient {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+    if (!res.ok) throw new Error(`Walrus store failed: HTTP ${res.status}`);
     const json = (await res.json()) as {
       newlyCreated?: { blobObject?: { blobId?: string } };
       alreadyCertified?: { blobId?: string };
