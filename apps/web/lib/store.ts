@@ -1,6 +1,7 @@
 import type { AgentId, Memory, NamespaceId, Policy } from "@carry/core";
 import { MockWalrus, type WalrusClient } from "@carry/walrus";
 import { WalrusHttp } from "@carry/walrus";
+import { memwalEnabled, rememberOnMemwal } from "./memwal";
 
 const MEMORY_EPOCHS = 50;
 
@@ -32,11 +33,15 @@ class Store {
   async add(input: { namespace: NamespaceId; content: string; sourceAgent: AgentId }): Promise<Memory> {
     const memoryId = "m" + ++this.seq;
     const createdAt = new Date().toISOString();
-    const { blobId } = await this.walrus.store(
-      { namespace: input.namespace, content: input.content, sourceAgent: input.sourceAgent, createdAt },
-      MEMORY_EPOCHS
-    );
-    const m: Memory = { memoryId, walrusRef: blobId, createdAt, ...input };
+    const walrusRef = memwalEnabled()
+      ? await rememberOnMemwal(input.content, input.namespace)
+      : (
+          await this.walrus.store(
+            { namespace: input.namespace, content: input.content, sourceAgent: input.sourceAgent, createdAt },
+            MEMORY_EPOCHS
+          )
+        ).blobId;
+    const m: Memory = { memoryId, walrusRef, createdAt, ...input };
     this.state.memories.push(m);
     return m;
   }
