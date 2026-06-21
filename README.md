@@ -23,9 +23,9 @@ Most AI-memory projects answer one question: _can an agent remember across sessi
 
 ## ▶ Demo
 
-[![Watch the Carry demo](https://img.youtube.com/vi/xnmx2WimhRk/maxresdefault.jpg)](https://youtu.be/xnmx2WimhRk)
+https://github.com/user-attachments/assets/3bf417d7-0519-4bfe-a6cd-d43488ee29f8
 
-_~3 minutes — the real app driven live (GPT-4o, Claude, Walrus testnet), plus the MCP server and on-chain enforcement. Try it yourself at **[carrysui.vercel.app](https://carrysui.vercel.app)**._
+_~3 minutes — the real app driven live (GPT-4o, Claude, Walrus testnet), plus the MCP server and on-chain enforcement. Also on [YouTube](https://youtu.be/xnmx2WimhRk) · try it live at **[carrysui.vercel.app](https://carrysui.vercel.app)**._
 
 One fact is taught to **Agent A (GPT-4o)** and captured to Walrus as a real blob. **Agent B (Claude)** — a different provider — recalls it and answers, rendering an Answer Receipt that shows the exact memory used and verifies its blob on-chain. Then I revoke `agent-b`'s access to the `health` namespace, ask again, and watch the agent truthfully refuse — *"I cannot access your Health memory"* — because the gate ran **before** the model, and the revoked memory was never fetched. Finally I anchor the receipt on Walrus and get back a real, verifiable blob ID.
 
