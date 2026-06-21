@@ -39,6 +39,7 @@ One fact is taught to **Agent A (GPT-4o)** and captured to Walrus as a real blob
 - [The recall loop, step by step](#the-recall-loop-step-by-step)
 - [How I integrated Walrus, Seal & MemWal](#how-i-integrated-walrus-seal--memwal)
 - [Use it from any agent (MCP)](#use-it-from-any-agent-mcp)
+- [On-chain enforcement (Sui testnet)](#on-chain-enforcement-sui-testnet)
 - [Engineering decisions & the hard problems](#engineering-decisions--the-hard-problems)
 - [What's real vs mock — the honesty table](#whats-real-vs-mock--the-honesty-table)
 - [The app](#the-app)
@@ -172,6 +173,29 @@ Point your agent at it (memory index persists on disk, content on Walrus):
 
 So `carry_recall` returns not just memories but **proof of what was used and what was blocked** — and revoking a namespace means the agent truthfully can't reach it, because the gate runs *before* retrieval. Verified live over stdio ([`packages/carry-mcp/test/client.mjs`](packages/carry-mcp/test/client.mjs)): remember → recall (verified) → revoke → recall returns `0 used, 1 blocked`.
 
+## On-chain enforcement (Sui testnet)
+
+The gate and the receipt verdict aren't only server logic — they're a deployed Move package, `carry::access`. Granting or revoking a namespace is a **Sui transaction**, and `anchor_receipt` makes the **chain recompute** whether every used namespace was actually allowed for the agent. So a receipt physically cannot claim "authorized" for a namespace the policy revoked — consensus decides the verdict, not my server.
+
+| Object | Sui testnet |
+| --- | --- |
+| Package `carry::access` | [`0xf3b458be…064d3`](https://suiscan.xyz/testnet/object/0xf3b458bea7002d364d6b6101dbdadb63a314cd529b2e2a576a6ab03a45c064d3) |
+| `AccessPolicy` (shared) | [`0x1636920d…5edfb`](https://suiscan.xyz/testnet/object/0x1636920dbdacff4d2c6be0a3c2344c74308de24e5df89e194d6fceffe1e5edfb) |
+
+Proven live — revoke `health` for `agent-b`, then anchor two receipts:
+
+- **anchor #1** uses `diet` → `all_authorized: true` · [tx](https://suiscan.xyz/testnet/tx/FLETh8MAARu6tNmGh7ZjHWEwEQngChp1B1HehEpKfQSa)
+- **anchor #2** falsely claims the revoked `health` → `all_authorized: false` — **the chain caught it** · [tx](https://suiscan.xyz/testnet/tx/5KUFn1mQiCDWVjDT9ZEHzk3fZyN7MB8mdK2sTMAUipFB)
+
+Reproduce it yourself:
+
+```bash
+sui move test --path contracts      # gate logic, unit-tested
+sui client publish contracts        # deploy; then call create / set_access / anchor_receipt
+```
+
+Live object IDs and the proof transactions are in [`deployments/testnet.json`](deployments/testnet.json).
+
 ## Engineering decisions & the hard problems
 
 A few things I'm proud of, and the bugs that taught me something:
@@ -243,6 +267,8 @@ packages/
   carry-mcp/                  # @carry/mcp — MCP server: gated, receipted memory tools for any agent (Cursor / Claude Code)
 examples/
   agent-memory.ts             # runnable: teach → gate → Walrus verify → receipt, no UI.
+contracts/                    # Sui Move package carry::access — on-chain agent×namespace gate + receipt anchoring (+ tests)
+deployments/testnet.json      # live Package ID + AccessPolicy / OwnerCap object IDs
 docs/DEMO.md                  # 90-second demo script
 ```
 

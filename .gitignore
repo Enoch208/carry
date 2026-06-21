@@ -18,3 +18,9 @@ dist/
 *.tsbuildinfo
 .env*.local
 .vercel
+
+# Demo render (kept local; upload to GitHub README/release manually)
+*.mp4
+
+# Move build artifacts
+contracts/build/

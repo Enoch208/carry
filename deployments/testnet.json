@@ -1,0 +1,14 @@
+{
+  "network": "testnet",
+  "module": "carry::access",
+  "packageId": "0xf3b458bea7002d364d6b6101dbdadb63a314cd529b2e2a576a6ab03a45c064d3",
+  "accessPolicy": "0x1636920dbdacff4d2c6be0a3c2344c74308de24e5df89e194d6fceffe1e5edfb",
+  "ownerCap": "0x7112ed7217bbb10bc58c6ada964c4f459ffcbc4e03a4b17e6b1d9471da002504",
+  "owner": "0xf0a0cf66c5469a9dbe682841365b61ae33e166400615a4666569696d0a5bf30f",
+  "publishDigest": "5Pv5XNjWxoyxkc8YL4NFTEGPYZyXqnwBQZKLR2kroonz",
+  "proofTxns": {
+    "setAccess_revoke_health": "3RgyYsbYqXumKQG4bV8CeM8KazcYZFRmSzG1zkwPPFED",
+    "anchor_compliant_all_authorized_true": "FLETh8MAARu6tNmGh7ZjHWEwEQngChp1B1HehEpKfQSa",
+    "anchor_violation_all_authorized_false": "5KUFn1mQiCDWVjDT9ZEHzk3fZyN7MB8mdK2sTMAUipFB"
+  }
+}
