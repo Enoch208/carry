@@ -23,7 +23,9 @@ Most AI-memory projects answer one question: _can an agent remember across sessi
 
 ## ▶ Demo
 
-> Live demo deploying to Vercel — until then it runs locally in ~1 minute (see [Run it locally](#run-it-locally)). Recording script in [`docs/DEMO.md`](docs/DEMO.md).
+https://github.com/user-attachments/assets/5df8bd49-41ca-47dd-b65f-89555ec7701d
+
+_~2 minutes — the real app driven live against GPT-4o, Claude, and Walrus testnet._
 
 One fact is taught to **Agent A (GPT-4o)** and captured to Walrus as a real blob. **Agent B (Claude)** — a different provider — recalls it and answers, rendering an Answer Receipt that shows the exact memory used and verifies its blob on-chain. Then I revoke `agent-b`'s access to the `health` namespace, ask again, and watch the agent truthfully refuse — *"I cannot access your Health memory"* — because the gate ran **before** the model, and the revoked memory was never fetched. Finally I anchor the receipt on Walrus and get back a real, verifiable blob ID.
 
