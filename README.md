@@ -38,6 +38,7 @@ One fact is taught to **Agent A (GPT-4o)** and captured to Walrus as a real blob
 - [Architecture](#architecture)
 - [The recall loop, step by step](#the-recall-loop-step-by-step)
 - [How I integrated Walrus, Seal & MemWal](#how-i-integrated-walrus-seal--memwal)
+- [Use it from any agent (MCP)](#use-it-from-any-agent-mcp)
 - [Engineering decisions & the hard problems](#engineering-decisions--the-hard-problems)
 - [What's real vs mock — the honesty table](#whats-real-vs-mock--the-honesty-table)
 - [The app](#the-app)
@@ -140,6 +141,37 @@ Carry doesn't hand-roll encryption — it gets **Seal** through MemWal's server-
 ### Cross-model (one interface, two providers)
 Both agents implement a single `LLMProvider` interface. Agent A is `OpenAIProvider` (GPT-4o), Agent B is `AnthropicProvider` (Claude); a `MockLLM` is the offline fallback. The agent loop doesn't know or care which model it's driving — which is exactly what lets the same gated memory answer through either provider.
 
+## Use it from any agent (MCP)
+
+The gate and receipts aren't locked inside the demo UI. Carry ships an **MCP server** (`@carry/mcp`) so any Model Context Protocol client — **Cursor, Claude Code, Claude Desktop** — gets gated, receipted, Walrus-verified memory that persists across sessions. Five tools:
+
+| Tool | What it does |
+|---|---|
+| `carry_remember` | Store a fact → written to **Walrus** as a blob; returns the real ref |
+| `carry_recall` | Retrieve relevant memory **gated before retrieval**, with an **Answer Receipt** — used · verified-on-Walrus · blocked namespaces |
+| `carry_set_access` | Grant/revoke a namespace — a revoked namespace is never returned |
+| `carry_list_memories` | List every memory + its Walrus ref |
+| `carry_policy` | Show the allow/deny policy |
+
+Point your agent at it (memory index persists on disk, content on Walrus):
+
+```json
+{
+  "mcpServers": {
+    "carry": {
+      "command": "node",
+      "args": ["--import", "tsx", "/ABSOLUTE/PATH/carry/packages/carry-mcp/src/index.ts"],
+      "env": {
+        "WALRUS_PUBLISHER": "https://publisher.walrus-testnet.walrus.space",
+        "WALRUS_AGGREGATOR": "https://aggregator.walrus-testnet.walrus.space"
+      }
+    }
+  }
+}
+```
+
+So `carry_recall` returns not just memories but **proof of what was used and what was blocked** — and revoking a namespace means the agent truthfully can't reach it, because the gate runs *before* retrieval. Verified live over stdio ([`packages/carry-mcp/test/client.mjs`](packages/carry-mcp/test/client.mjs)): remember → recall (verified) → revoke → recall returns `0 used, 1 blocked`.
+
 ## Engineering decisions & the hard problems
 
 A few things I'm proud of, and the bugs that taught me something:
@@ -208,6 +240,7 @@ apps/web/                     # Next.js 16 app
 packages/
   carry-core/                 # @carry/core — types · access policy · gate (recall) · Answer Receipts. Pure, tested.
   carry-walrus/               # @carry/walrus — Walrus store/verify HTTP adapters + mock.
+  carry-mcp/                  # @carry/mcp — MCP server: gated, receipted memory tools for any agent (Cursor / Claude Code)
 examples/
   agent-memory.ts             # runnable: teach → gate → Walrus verify → receipt, no UI.
 docs/DEMO.md                  # 90-second demo script

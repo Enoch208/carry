@@ -1,0 +1,19 @@
+{
+  "name": "@carry/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Carry MCP server — gated, receipted, Walrus-verified memory for any agent (Cursor, Claude Code, Claude Desktop).",
+  "scripts": {
+    "start": "node --import tsx --env-file-if-exists=../../apps/web/.env.local ./src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@carry/walrus": "*",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}
