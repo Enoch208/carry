@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/cover.svg" alt="Carry — proof-carrying memory for AI agents" width="100%" />
+<img src="assets/cover.png" alt="Carry — proof-carrying memory for AI agents" width="100%" />
 
 &nbsp;
 
