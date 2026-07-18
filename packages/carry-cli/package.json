@@ -1,0 +1,30 @@
+{
+  "name": "@carry/cli",
+  "version": "0.1.0",
+  "description": "carry — proof-carrying memory for AI agents, from your terminal. Remember, recall with a live Answer Receipt, gate access, and anchor proofs on Walrus.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "carry": "./bin/carry.mjs"
+  },
+  "files": [
+    "bin",
+    "README.md"
+  ],
+  "keywords": [
+    "ai",
+    "agents",
+    "memory",
+    "walrus",
+    "sui",
+    "cli",
+    "provenance",
+    "mcp"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
