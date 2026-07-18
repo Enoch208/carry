@@ -1,20 +1,25 @@
 {
   "network": "testnet",
   "module": "carry::access",
-  "packageId": "0xf3b458bea7002d364d6b6101dbdadb63a314cd529b2e2a576a6ab03a45c064d3",
-  "accessPolicy": "0x1636920dbdacff4d2c6be0a3c2344c74308de24e5df89e194d6fceffe1e5edfb",
-  "ownerCap": "0x7112ed7217bbb10bc58c6ada964c4f459ffcbc4e03a4b17e6b1d9471da002504",
+  "packageId": "0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9",
+  "accessPolicy": "0x7bac6b5168a646d7ef06a05fcdebb1526a831bae91c42bb1fd295f976af2cd51",
+  "ownerCap": "0xf274f5d02a19930445069f024b28de3cb5ed9ac49bbe7bbedeea54582db89777",
   "owner": "0xf0a0cf66c5469a9dbe682841365b61ae33e166400615a4666569696d0a5bf30f",
-  "publishDigest": "5Pv5XNjWxoyxkc8YL4NFTEGPYZyXqnwBQZKLR2kroonz",
+  "publisher": "0x152f00270440ed70f54d9ede6d082cefbd804a1802fe419a35298eba3a7c0b66",
+  "displayReceipt": "0x152286bee047ec114c70e90fda092e4f76f677841d35b4720bdf7bbe20cd9dad",
+  "upgradeCap": "0xa43ff1748abe7873687f413b79ce1edf5217bffa0d2d8ca0adfb21eb527f3933",
+  "clock": "0x6",
+  "publishDigest": "4QdgsunhavFiqHsaBvQfoUsN9zBWqCUsG2U7G1mRvfDW",
+  "createDigest": "3W1vLv1zXc4zGqLkVW5ZNv9SSDu1DG8jkn8s5b53UP5c",
+  "note": "carry::access v2 — anchor_receipt now mints an owned, Display-enabled Receipt object, binds it to the Walrus receipt blob via blake2b256, and links it into an append-only blake2b256 hash chain. aria is denied the `billing` namespace on-chain, so a receipt claiming it is caught by consensus.",
   "proofTxns": {
-    "setAccess_revoke_health": "3RgyYsbYqXumKQG4bV8CeM8KazcYZFRmSzG1zkwPPFED",
-    "anchor_compliant_all_authorized_true": "FLETh8MAARu6tNmGh7ZjHWEwEQngChp1B1HehEpKfQSa",
-    "anchor_violation_all_authorized_false": "5KUFn1mQiCDWVjDT9ZEHzk3fZyN7MB8mdK2sTMAUipFB"
+    "setAccess_revoke_aria_billing": "DppdCyYqkCmtssNQLxMKHrm1PyrsRycMBuhRED11jaru",
+    "anchor_honest_all_authorized_true": "98ppKaNG3sEMvQAzSvufdJNGUdxmxw6U6uLw62GRHuyR",
+    "anchor_tampered_all_authorized_false": "HvWS6oUB75GPwUwCsixNkFZSR2aWnwv8RczgZWTqE9A2"
   },
-  "liveAnchorDemo": {
-    "note": "Aria (companion) anchors live from the app / CLI. aria is denied the `billing` namespace on-chain, so a receipt claiming it is caught by consensus.",
-    "setAccess_revoke_aria_billing": "4yzodh4HAFGQcGyFKH1bqbnpVEqQDToxotZ7kR2U3KYL",
-    "anchor_honest_all_authorized_true": "FoNkbu3zJRhx3pLoSexLgt56vdjHdqvRmCtpeJ6vf4L6",
-    "anchor_tampered_all_authorized_false": "FshNbrukcU8sk2TDCFoeBvKJGaX3j34cryhQ1cs8TEqc"
+  "exampleReceipts": {
+    "honest_all_authorized_true": "0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215",
+    "tampered_all_authorized_false": "0xe57c9af7240de356b171fb8f270cef677627cd8683695390cda1151d95df9199",
+    "verifyUrl": "https://carrysui.vercel.app/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215"
   }
 }
