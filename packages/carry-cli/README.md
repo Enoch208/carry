@@ -1,15 +1,15 @@
-# @carry/cli
+# @usecarry/cli
 
 **Proof-carrying memory for AI agents — from your terminal.**
 
 `carry` gives you gated, receipted, Walrus-verified memory as a command-line tool. Every `recall` prints an **Answer Receipt**: what memory was used, whether the agent was allowed to use it, and whether each blob still resolves on Walrus. Revoke a namespace and the gate runs *before* retrieval — so your data is never fetched, and the receipt proves it.
 
-It shares one on-disk vault (`~/.carry/store.json`) with the [Carry MCP server](https://www.npmjs.com/package/@carry/mcp), so a fact you `remember` in the terminal is recalled by an MCP agent in your IDE — same vault, same gate, same proof.
+It shares one on-disk vault (`~/.carry/store.json`) with the [Carry MCP server](https://www.npmjs.com/package/@usecarry/mcp), so a fact you `remember` in the terminal is recalled by an MCP agent in your IDE — same vault, same gate, same proof.
 
 ## Install
 
 ```bash
-npm i -g @carry/cli      # or: npx @carry/cli <command>
+npm i -g @usecarry/cli      # or: npx @usecarry/cli <command>
 ```
 
 ## Use

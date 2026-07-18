@@ -1,5 +1,5 @@
 {
-  "name": "@carry/cli",
+  "name": "@usecarry/cli",
   "version": "0.1.0",
   "description": "carry — proof-carrying memory for AI agents, from your terminal. Remember, recall with a live Answer Receipt, gate access, and anchor proofs on Walrus.",
   "type": "module",

@@ -50,7 +50,7 @@ Everything below is live right now. Click it.
 - `health · "Gets migraines…"` → [GET ↗](https://aggregator.walrus-testnet.walrus.space/v1/blobs/teb6wF9Ypzec4x3CPbleffMyQfWog0I1RLGPwsqcDUY)
 - `diet · "Prefers vegan meals"` → [GET ↗](https://aggregator.walrus-testnet.walrus.space/v1/blobs/48oFqb9rDKoWi0-ynJbp9cFnerTCL6EhEQ9WFrvmJoU)
 
-**In your terminal.** `carry` — proof-carrying memory as a CLI ([`@carry/cli`](packages/carry-cli), sharing one on-disk vault with the MCP server):
+**In your terminal.** `carry` — proof-carrying memory as a CLI ([`@usecarry/cli`](packages/carry-cli), sharing one on-disk vault with the MCP server):
 
 ```bash
 carry seed
@@ -61,7 +61,7 @@ carry anchor --onchain                       # → submits a real Sui tx; consen
 carry anchor --onchain --claim billing       # → all_authorized: false — the chain catches the lie, live
 ```
 
-**For any agent.** An **MCP server** ([`@carry/mcp`](packages/carry-mcp)) gives Cursor / Claude Code / Claude Desktop the same gated, receipted memory; a **Vercel AI SDK adapter** ([`@carry/vercel-ai`](packages/carry-vercel-ai)) wraps any model in one line — gated memory before generation, a receipt on every call.
+**For any agent.** An **MCP server** ([`@usecarry/mcp`](packages/carry-mcp)) gives Cursor / Claude Code / Claude Desktop the same gated, receipted memory; a **Vercel AI SDK adapter** ([`@usecarry/vercel-ai`](packages/carry-vercel-ai)) wraps any model in one line — gated memory before generation, a receipt on every call.
 
 **Tested.** 16 TypeScript tests (gate · policy · receipts · Walrus) + Move unit tests for `carry::access`. Green in [CI](../../actions).
 
@@ -119,8 +119,8 @@ Carry isn't a screen — it's a memory layer that proves itself everywhere an ag
 |---|---|
 | **Aria** — consumer app | A health companion at [`/companion`](https://carrysui.vercel.app/companion) that only recalls what you allow. Flip the gate and watch it prove, live, that your health data was *never fetched* — the vault visibly locks, the gate log streams the decision, the receipt shows `blocked`. |
 | **`carry`** — CLI | Proof-carrying memory in your terminal: `carry recall …` prints an Answer Receipt with every blob verified on Walrus; `carry anchor --onchain` submits a live Sui transaction. |
-| **`@carry/mcp`** — MCP server | Drops the same memory + receipts into Cursor / Claude Code / Claude Desktop. |
-| **`@carry/vercel-ai`** — SDK adapter | Wrap any Vercel AI SDK model in one line: gated memory injected before generation, an Answer Receipt on every call. |
+| **`@usecarry/mcp`** — MCP server | Drops the same memory + receipts into Cursor / Claude Code / Claude Desktop. |
+| **`@usecarry/vercel-ai`** — SDK adapter | Wrap any Vercel AI SDK model in one line: gated memory injected before generation, an Answer Receipt on every call. |
 
 Write a fact once — from the CLI, an MCP agent, the SDK, or the app — and it's the same gate, the same on-chain policy, the same proof. **One vault. Every agent. Provable everywhere.**
 
@@ -195,7 +195,7 @@ Both agents implement a single `LLMProvider` interface. Agent A is `OpenAIProvid
 
 ## Use it from any agent (MCP + CLI)
 
-The gate and receipts aren't locked inside the demo UI. Carry ships an **MCP server** (`@carry/mcp`) so any Model Context Protocol client — **Cursor, Claude Code, Claude Desktop** — gets gated, receipted, Walrus-verified memory that persists across sessions. Five tools:
+The gate and receipts aren't locked inside the demo UI. Carry ships an **MCP server** (`@usecarry/mcp`) so any Model Context Protocol client — **Cursor, Claude Code, Claude Desktop** — gets gated, receipted, Walrus-verified memory that persists across sessions. Five tools:
 
 | Tool | What it does |
 |---|---|
@@ -307,7 +307,7 @@ The landing page is a faithful port of a premium "deep-tech" template, recolored
 ## Tech stack
 
 - **App:** Next.js 16 (App Router, Turbopack), React 19, TypeScript (strict), Tailwind CSS v4.
-- **Engine:** `@carry/core` (gate · policy · receipts, dependency-free) + `@carry/walrus` (Walrus HTTP adapters) + `@carry/mcp` (MCP server) + `@carry/cli` (the `carry` command), as npm workspaces.
+- **Engine:** `@carry/core` (gate · policy · receipts, dependency-free) + `@carry/walrus` (Walrus HTTP adapters) + `@usecarry/mcp` (MCP server) + `@usecarry/cli` (the `carry` command), as npm workspaces.
 - **Storage & privacy:** Walrus testnet (HTTP API); Seal + embeddings via MemWal (Walrus Memory) in `memwal` mode.
 - **Models:** OpenAI GPT-4o + Anthropic Claude, behind one `LLMProvider` interface.
 - **Tests:** Vitest — 16 tests across 4 workspaces.
@@ -338,9 +338,9 @@ apps/web/                     # Next.js 16 app
 packages/
   carry-core/                 # @carry/core — types · access policy · gate (recall) · Answer Receipts. Pure, tested.
   carry-walrus/               # @carry/walrus — Walrus store/verify HTTP adapters + mock.
-  carry-mcp/                  # @carry/mcp — MCP server: gated, receipted memory tools for any agent (Cursor / Claude Code)
-  carry-cli/                  # @carry/cli — the `carry` command: recall-with-receipt in your terminal, shared vault
-  carry-vercel-ai/            # @carry/vercel-ai — Vercel AI SDK middleware: gate memory + attach a receipt in one line
+  carry-mcp/                  # @usecarry/mcp — MCP server: gated, receipted memory tools for any agent (Cursor / Claude Code)
+  carry-cli/                  # @usecarry/cli — the `carry` command: recall-with-receipt in your terminal, shared vault
+  carry-vercel-ai/            # @usecarry/vercel-ai — Vercel AI SDK middleware: gate memory + attach a receipt in one line
 examples/
   agent-memory.ts             # runnable: teach → gate → Walrus verify → receipt, no UI.
 contracts/                    # Sui Move package carry::access — on-chain agent×namespace gate + receipt anchoring (+ tests)

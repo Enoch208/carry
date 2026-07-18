@@ -1,11 +1,11 @@
-# @carry/vercel-ai
+# @usecarry/vercel-ai
 
 **Drop-in proof-carrying memory for the [Vercel AI SDK](https://sdk.vercel.ai).**
 
 Wrap any model in one line. Carry gates the user's memory *before* generation — the model only ever sees authorized memory — and emits an **Answer Receipt** (what was used, what was blocked) on every call.
 
 ```ts
-import { withCarryMemory, createMemoryStore } from "@carry/vercel-ai";
+import { withCarryMemory, createMemoryStore } from "@usecarry/vercel-ai";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -38,7 +38,7 @@ A raw vector-DB memory layer hands your model *everything* it retrieves and hope
 - **`withCarryMemory(model, opts)`** — wraps a model with the Carry middleware. Returns the same model type.
 - **`carryMiddleware(opts)`** — the raw `LanguageModelMiddleware` if you compose your own `wrapLanguageModel`.
 - **`createMemoryStore({ memories, policy })`** — an in-memory Carry vault (default-allow; `policy[agent][ns] = false` revokes).
-- **`CarryStore`** — implement `recall(agent, query)` to back it with your own store (Walrus, a DB, the [`carry` CLI](https://www.npmjs.com/package/@carry/cli) vault, …).
+- **`CarryStore`** — implement `recall(agent, query)` to back it with your own store (Walrus, a DB, the [`carry` CLI](https://www.npmjs.com/package/@usecarry/cli) vault, …).
 
 Options: `{ store, agent?, onReceipt? }`. `onReceipt(receipt)` fires on every call with `{ agent, query, used, blockedNamespaces, createdAt }`.
 

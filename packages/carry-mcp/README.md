@@ -1,10 +1,10 @@
-# @carry/mcp
+# @usecarry/mcp
 
 **Gated, receipted, Walrus-verified memory for any MCP agent** — Cursor, Claude Code, Claude Desktop.
 
 Carry gives your agent long-term memory where every recall comes with an **Answer Receipt**: what was used, whether it was authorized, whether each blob still resolves on Walrus, and which namespaces were **blocked before retrieval**. The access gate runs *before* the model sees anything — so a revoked namespace is never fetched, and the receipt proves it.
 
-Shares one on-disk vault (`~/.carry/store.json`) with the [`carry` CLI](https://www.npmjs.com/package/@carry/cli): a fact you `carry remember` in the terminal is recalled by your IDE agent, under the same gate.
+Shares one on-disk vault (`~/.carry/store.json`) with the [`carry` CLI](https://www.npmjs.com/package/@usecarry/cli): a fact you `carry remember` in the terminal is recalled by your IDE agent, under the same gate.
 
 ## Use
 
@@ -15,7 +15,7 @@ Add to your MCP client config (`.cursor/mcp.json`, Claude Desktop config, etc.):
   "mcpServers": {
     "carry": {
       "command": "npx",
-      "args": ["-y", "@carry/mcp"],
+      "args": ["-y", "@usecarry/mcp"],
       "env": {
         "WALRUS_PUBLISHER": "https://publisher.walrus-testnet.walrus.space",
         "WALRUS_AGGREGATOR": "https://aggregator.walrus-testnet.walrus.space"

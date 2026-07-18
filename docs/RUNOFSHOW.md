@@ -61,7 +61,7 @@ carry anchor --onchain --claim billing        # → all_authorized: false — th
 > "The policy isn't my server — it's a Move package on Sui. Watch: I anchor an honest receipt, and consensus confirms it — here's the transaction. Now I anchor a receipt that **lies**, claiming a namespace it's not allowed — and the chain returns `false`. **It caught the lie. Live, on-chain.** None of the other memory projects can do that." *(Same button — "Anchor on Sui" — sits under every receipt in Aria if you'd rather stay in the app.)*
 
 **MCP + SDK (the reach):** one line each.
-> "The same vault plugs into Cursor, Claude Code, Claude Desktop over MCP — `npx @carry/mcp`. And any Vercel AI SDK agent gets it in one line — `withCarryMemory(model)` — gated memory in, a receipt out. One vault, every agent."
+> "The same vault plugs into Cursor, Claude Code, Claude Desktop over MCP — `npx @usecarry/mcp`. And any Vercel AI SDK agent gets it in one line — `withCarryMemory(model)` — gated memory in, a receipt out. One vault, every agent."
 
 ## Close — the thesis + the ask (2:30–3:00)
 
