@@ -33,4 +33,12 @@ describe("recall (gate before generation)", () => {
     expect(r.blockedNamespaces).toHaveLength(0);
     expect(r.memories.map((m) => m.memoryId)).toContain("m2");
   });
+  it("ignores stopwords so shared filler words don't cause false matches", () => {
+    const mems = [
+      mem("m2", "health", "Allergic to penicillin"),
+      mem("m9", "project", "Ships code to production"),
+    ];
+    const r = recall("agent-a", "am I allergic to anything?", mems, allow);
+    expect(r.memories.map((m) => m.memoryId)).toEqual(["m2"]);
+  });
 });
