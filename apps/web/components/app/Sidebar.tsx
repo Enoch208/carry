@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Icon, TeachIcon, CrossModelIcon, MemoryIcon, MatrixIcon } from "@/components/icons";
+import { Icon, TeachIcon, CrossModelIcon, MemoryIcon, MatrixIcon, HeartIcon } from "@/components/icons";
 import { resetDemo } from "@/lib/api";
 import { cn } from "@/lib/cn";
 
@@ -12,6 +12,7 @@ const navItems = [
   { label: "Chat B", href: "/chat-b", icon: CrossModelIcon },
   { label: "Dashboard", href: "/dashboard", icon: MemoryIcon },
   { label: "Access", href: "/access", icon: MatrixIcon },
+  { label: "Companion", href: "/companion", icon: HeartIcon },
 ];
 
 export function Sidebar() {

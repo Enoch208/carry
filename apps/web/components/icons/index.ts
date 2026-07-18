@@ -22,4 +22,7 @@ export {
   Copy01Icon as CopyIcon,
   Link01Icon as LinkIcon,
   Github01Icon as GithubIcon,
+  FavouriteIcon as HeartIcon,
+  CommandLineIcon as TerminalIcon,
+  LockIcon,
 } from "@hugeicons/core-free-icons";

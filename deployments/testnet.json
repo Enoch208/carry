@@ -10,5 +10,11 @@
     "setAccess_revoke_health": "3RgyYsbYqXumKQG4bV8CeM8KazcYZFRmSzG1zkwPPFED",
     "anchor_compliant_all_authorized_true": "FLETh8MAARu6tNmGh7ZjHWEwEQngChp1B1HehEpKfQSa",
     "anchor_violation_all_authorized_false": "5KUFn1mQiCDWVjDT9ZEHzk3fZyN7MB8mdK2sTMAUipFB"
+  },
+  "liveAnchorDemo": {
+    "note": "Aria (companion) anchors live from the app / CLI. aria is denied the `billing` namespace on-chain, so a receipt claiming it is caught by consensus.",
+    "setAccess_revoke_aria_billing": "4yzodh4HAFGQcGyFKH1bqbnpVEqQDToxotZ7kR2U3KYL",
+    "anchor_honest_all_authorized_true": "FoNkbu3zJRhx3pLoSexLgt56vdjHdqvRmCtpeJ6vf4L6",
+    "anchor_tampered_all_authorized_false": "FshNbrukcU8sk2TDCFoeBvKJGaX3j34cryhQ1cs8TEqc"
   }
 }
