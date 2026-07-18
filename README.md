@@ -6,7 +6,7 @@
 
 [![CI](https://github.com/Enoch208/carry/actions/workflows/ci.yml/badge.svg)](https://github.com/Enoch208/carry/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-13%20passing-10b981)](#tests)
+[![Tests](https://img.shields.io/badge/tests-16%20passing-10b981)](#tests)
 [![Walrus](https://img.shields.io/badge/storage-Walrus%20testnet-4DA2FF)](https://www.walrus.xyz)
 [![Seal](https://img.shields.io/badge/encryption-Seal%20via%20MemWal-2563eb)](https://github.com/MystenLabs/MemWal)
 ![Stack](https://img.shields.io/badge/Next.js%2016%20·%20React%2019%20·%20TypeScript-1f1f23)
@@ -31,14 +31,52 @@ One fact is taught to **Agent A (GPT-4o)** and captured to Walrus as a real blob
 
 ---
 
+## Proof — nothing here is a mockup
+
+Everything below is live right now. Click it.
+
+**Live app.** [carrysui.vercel.app](https://carrysui.vercel.app) — the four Carry screens, plus **[Aria](https://carrysui.vercel.app/companion)**, a health companion that only remembers what you allow and proves it on every reply.
+
+**On Sui (testnet).** The gate is a deployed Move package, and `anchor_receipt` makes **consensus recompute the verdict** — a receipt physically cannot claim "authorized" for a namespace the policy revoked.
+
+- Package `carry::access` → [`0xf3b458be…064d3`](https://suiscan.xyz/testnet/object/0xf3b458bea7002d364d6b6101dbdadb63a314cd529b2e2a576a6ab03a45c064d3)
+- Revoke `health` for `agent-b` → [tx `3RgyYsbY…`](https://suiscan.xyz/testnet/tx/3RgyYsbYqXumKQG4bV8CeM8KazcYZFRmSzG1zkwPPFED)
+- Anchor an honest receipt (`diet`) → `all_authorized: true` → [tx `FLETh8MA…`](https://suiscan.xyz/testnet/tx/FLETh8MAARu6tNmGh7ZjHWEwEQngChp1B1HehEpKfQSa)
+- Anchor a receipt that lies about the revoked `health` → `all_authorized: false` — **the chain caught it** → [tx `5KUFn1mQ…`](https://suiscan.xyz/testnet/tx/5KUFn1mQiCDWVjDT9ZEHzk3fZyN7MB8mdK2sTMAUipFB)
+
+**On Walrus (testnet).** The memories aren't fixtures — they're real blobs anyone can resolve:
+
+- `health · "Allergic to penicillin"` → [aggregator GET ↗](https://aggregator.walrus-testnet.walrus.space/v1/blobs/oHJRrapc1dfUR-IEuS1RO2xQZnGsPx8iFE12MXSylVs)
+- `health · "Gets migraines…"` → [GET ↗](https://aggregator.walrus-testnet.walrus.space/v1/blobs/teb6wF9Ypzec4x3CPbleffMyQfWog0I1RLGPwsqcDUY)
+- `diet · "Prefers vegan meals"` → [GET ↗](https://aggregator.walrus-testnet.walrus.space/v1/blobs/48oFqb9rDKoWi0-ynJbp9cFnerTCL6EhEQ9WFrvmJoU)
+
+**In your terminal.** `carry` — proof-carrying memory as a CLI ([`@carry/cli`](packages/carry-cli), sharing one on-disk vault with the MCP server):
+
+```bash
+carry seed
+carry recall "am I allergic to anything?"    # → Answer Receipt, each blob verified on Walrus
+carry access revoke health
+carry recall "am I allergic to anything?"    # → 1 namespace blocked · your data never reached the model
+carry anchor --onchain                       # → submits a real Sui tx; consensus recomputes all_authorized
+carry anchor --onchain --claim billing       # → all_authorized: false — the chain catches the lie, live
+```
+
+**For any agent.** An **MCP server** ([`@carry/mcp`](packages/carry-mcp)) gives Cursor / Claude Code / Claude Desktop the same gated, receipted memory; a **Vercel AI SDK adapter** ([`@carry/vercel-ai`](packages/carry-vercel-ai)) wraps any model in one line — gated memory before generation, a receipt on every call.
+
+**Tested.** 16 TypeScript tests (gate · policy · receipts · Walrus) + Move unit tests for `carry::access`. Green in [CI](../../actions).
+
+---
+
 ## Table of contents
 
+- [Proof — nothing here is a mockup](#proof--nothing-here-is-a-mockup)
 - [The problem I set out to solve](#the-problem-i-set-out-to-solve)
 - [What I built](#what-i-built)
+- [One vault, every surface](#one-vault-every-surface)
 - [Architecture](#architecture)
 - [The recall loop, step by step](#the-recall-loop-step-by-step)
 - [How I integrated Walrus, Seal & MemWal](#how-i-integrated-walrus-seal--memwal)
-- [Use it from any agent (MCP)](#use-it-from-any-agent-mcp)
+- [Use it from any agent (MCP + CLI)](#use-it-from-any-agent-mcp--cli)
 - [On-chain enforcement (Sui testnet)](#on-chain-enforcement-sui-testnet)
 - [Engineering decisions & the hard problems](#engineering-decisions--the-hard-problems)
 - [What's real vs mock — the honesty table](#whats-real-vs-mock--the-honesty-table)
@@ -71,7 +109,20 @@ A memory layer for agents where every answer carries its proof:
 
 The whole thing is **mock-first**: real OpenAI/Anthropic/Walrus adapters sit behind interfaces, and the system falls back to deterministic mocks when a key is absent — so it runs offline and a demo never hard-fails on a flaky testnet.
 
-**A note on what's honest about the demo.** The three seed memories aren't fixtures — they're real Walrus testnet blobs I uploaded once with [`apps/web/scripts/seed-walrus.mjs`](apps/web/scripts/seed-walrus.mjs); you can resolve them on any testnet aggregator. New captures hit Walrus live. The cross-model answers are live GPT-4o and Claude calls. The revoke is a real policy flip that the gate honors before the model is invoked. The only thing I _don't_ persist across server restarts is the in-process memory index — and I say so plainly in [the honesty table](#whats-real-vs-mock--the-honesty-table) rather than pretend otherwise.
+**A note on what's honest about the demo.** The seed memories aren't fixtures — they're real Walrus testnet blobs I uploaded once with [`apps/web/scripts/seed-walrus.mjs`](apps/web/scripts/seed-walrus.mjs); you can resolve them on any testnet aggregator. New captures hit Walrus live. The cross-model answers are live GPT-4o and Claude calls. The revoke is a real policy flip that the gate honors before the model is invoked. The only thing I _don't_ persist across server restarts is the in-process memory index — and I say so plainly in [the honesty table](#whats-real-vs-mock--the-honesty-table) rather than pretend otherwise.
+
+## One vault, every surface
+
+Carry isn't a screen — it's a memory layer that proves itself everywhere an agent lives. The same gated vault, the same Answer Receipt, three front doors:
+
+| Surface | What it is |
+|---|---|
+| **Aria** — consumer app | A health companion at [`/companion`](https://carrysui.vercel.app/companion) that only recalls what you allow. Flip the gate and watch it prove, live, that your health data was *never fetched* — the vault visibly locks, the gate log streams the decision, the receipt shows `blocked`. |
+| **`carry`** — CLI | Proof-carrying memory in your terminal: `carry recall …` prints an Answer Receipt with every blob verified on Walrus; `carry anchor --onchain` submits a live Sui transaction. |
+| **`@carry/mcp`** — MCP server | Drops the same memory + receipts into Cursor / Claude Code / Claude Desktop. |
+| **`@carry/vercel-ai`** — SDK adapter | Wrap any Vercel AI SDK model in one line: gated memory injected before generation, an Answer Receipt on every call. |
+
+Write a fact once — from the CLI, an MCP agent, the SDK, or the app — and it's the same gate, the same on-chain policy, the same proof. **One vault. Every agent. Provable everywhere.**
 
 ## Architecture
 
@@ -142,7 +193,7 @@ Carry doesn't hand-roll encryption — it gets **Seal** through MemWal's server-
 ### Cross-model (one interface, two providers)
 Both agents implement a single `LLMProvider` interface. Agent A is `OpenAIProvider` (GPT-4o), Agent B is `AnthropicProvider` (Claude); a `MockLLM` is the offline fallback. The agent loop doesn't know or care which model it's driving — which is exactly what lets the same gated memory answer through either provider.
 
-## Use it from any agent (MCP)
+## Use it from any agent (MCP + CLI)
 
 The gate and receipts aren't locked inside the demo UI. Carry ships an **MCP server** (`@carry/mcp`) so any Model Context Protocol client — **Cursor, Claude Code, Claude Desktop** — gets gated, receipted, Walrus-verified memory that persists across sessions. Five tools:
 
@@ -173,6 +224,20 @@ Point your agent at it (memory index persists on disk, content on Walrus):
 
 So `carry_recall` returns not just memories but **proof of what was used and what was blocked** — and revoking a namespace means the agent truthfully can't reach it, because the gate runs *before* retrieval. Verified live over stdio ([`packages/carry-mcp/test/client.mjs`](packages/carry-mcp/test/client.mjs)): remember → recall (verified) → revoke → recall returns `0 used, 1 blocked`.
 
+### The `carry` CLI
+
+Same engine, same on-disk vault (`~/.carry/store.json`), from your terminal — `carry recall` renders an **Answer Receipt** right in the shell, each source blob verified against the live Walrus aggregator:
+
+```bash
+carry seed                                    # load the demo vault (real Walrus blobs)
+carry recall "am I allergic to anything?"     # Answer Receipt: authorized ✓  verified ✓ on Walrus
+carry access revoke health                    # flip the gate — a Sui-mirrored policy write
+carry recall "am I allergic to anything?"     # 1 namespace blocked · your data never reached the model
+carry anchor                                  # write the receipt itself to Walrus, get a resolvable blob
+```
+
+Because the CLI and the MCP server read and write the **same vault file**, a fact you `carry remember` in the terminal is recalled by an MCP agent in your IDE — and both honor the same gate. Source: [`packages/carry-cli`](packages/carry-cli).
+
 ## On-chain enforcement (Sui testnet)
 
 The gate and the receipt verdict aren't only server logic — they're a deployed Move package, `carry::access`. Granting or revoking a namespace is a **Sui transaction**, and `anchor_receipt` makes the **chain recompute** whether every used namespace was actually allowed for the agent. So a receipt physically cannot claim "authorized" for a namespace the policy revoked — consensus decides the verdict, not my server.
@@ -186,6 +251,11 @@ Proven live — revoke `health` for `agent-b`, then anchor two receipts:
 
 - **anchor #1** uses `diet` → `all_authorized: true` · [tx](https://suiscan.xyz/testnet/tx/FLETh8MAARu6tNmGh7ZjHWEwEQngChp1B1HehEpKfQSa)
 - **anchor #2** falsely claims the revoked `health` → `all_authorized: false` — **the chain caught it** · [tx](https://suiscan.xyz/testnet/tx/5KUFn1mQiCDWVjDT9ZEHzk3fZyN7MB8mdK2sTMAUipFB)
+
+**This is wired into the live app and CLI — not just pre-made transactions.** Click **Anchor on Sui** under any Answer Receipt in Aria, or run `carry anchor --onchain`, and a real `anchor_receipt` transaction is submitted while you watch. `aria` is denied the `billing` namespace on-chain, so:
+
+- honest receipt (`health`) anchored from the app → `all_authorized: true` · [tx](https://suiscan.xyz/testnet/tx/FoNkbu3zJRhx3pLoSexLgt56vdjHdqvRmCtpeJ6vf4L6)
+- `carry anchor --onchain --claim billing` (a receipt that lies) → `all_authorized: false` — **the chain caught it, live** · [tx](https://suiscan.xyz/testnet/tx/FshNbrukcU8sk2TDCFoeBvKJGaX3j34cryhQ1cs8TEqc)
 
 Reproduce it yourself:
 
@@ -230,33 +300,37 @@ Four screens, all sharing one near-black, hairline-bordered design system; the *
 - **Chat B (reader)** — talk to Claude over the _same_ gated memory; where live revoke is demonstrated.
 - **Dashboard** — memory cards with provenance, Answer Receipt history, and the **Anchor on Walrus** action.
 - **Access** — the agent × namespace matrix that flips the retrieval gate in real time.
+- **Aria (`/companion`)** — a consumer health companion on top of the same engine: a live memory-vault rail, a one-flip access gate, and a streaming gate log, so a non-technical judge *sees* the memory lock and the proof appear.
 
 The landing page is a faithful port of a premium "deep-tech" template, recolored to Sui blue.
 
 ## Tech stack
 
 - **App:** Next.js 16 (App Router, Turbopack), React 19, TypeScript (strict), Tailwind CSS v4.
-- **Engine:** `@carry/core` (gate · policy · receipts, dependency-free) + `@carry/walrus` (Walrus HTTP adapters), as npm workspaces.
+- **Engine:** `@carry/core` (gate · policy · receipts, dependency-free) + `@carry/walrus` (Walrus HTTP adapters) + `@carry/mcp` (MCP server) + `@carry/cli` (the `carry` command), as npm workspaces.
 - **Storage & privacy:** Walrus testnet (HTTP API); Seal + embeddings via MemWal (Walrus Memory) in `memwal` mode.
 - **Models:** OpenAI GPT-4o + Anthropic Claude, behind one `LLMProvider` interface.
-- **Tests:** Vitest — 13 tests across 3 workspaces.
+- **Tests:** Vitest — 16 tests across 4 workspaces.
 
 ## Project layout
 
 ```
 apps/web/                     # Next.js 16 app
   app/
-    (app)/{chat-a,chat-b,dashboard,access}/   # the four screens
-    api/{chat,memories,policy,anchor,reset}/  # route handlers — the gate runs here
+    (app)/{chat-a,chat-b,dashboard,access}/   # the four core screens
+    companion/                # Aria — the health-companion consumer surface
+    api/{chat,companion,memories,policy,anchor,anchor-sui,reset}/  # route handlers — the gate runs here
     layout.tsx · page.tsx · globals.css       # design system lives in globals.css
   components/
     landing/                  # faithful premium landing port
     app/                      # Chat · CaptureForm · ReceiptPanel · Dashboard · AccessMatrix · MemoryCard · AnchorButton · Sidebar
+    companion/                # Aria — CompanionChat · VaultRail · AccessGate · GateLog · ProofStrip
     ui/ · icons/              # primitives + HugeIcons wrapper
   lib/
     store.ts                  # in-memory index + backend selection (Walrus | MemWal | mock)
-    llm.ts · llm-providers.ts # LLMProvider interface + OpenAI / Anthropic / Mock
-    memwal.ts                 # MemWal client (dynamic import, behind CARRY_MEMORY flag)
+    llm.ts · llm-providers.ts # LLMProvider interface + OpenAI / Anthropic / Mock (persona-aware)
+    companion.ts · memwal.ts  # Aria persona/constants · MemWal client (behind CARRY_MEMORY flag)
+    sui.ts                    # live on-chain anchoring — shells the Sui CLI to call carry::access
     adapters.ts · agents.ts · api.ts · cn.ts
   scripts/
     seed-walrus.mjs           # one-time: upload demo memories to Walrus (real blob IDs)
@@ -265,11 +339,14 @@ packages/
   carry-core/                 # @carry/core — types · access policy · gate (recall) · Answer Receipts. Pure, tested.
   carry-walrus/               # @carry/walrus — Walrus store/verify HTTP adapters + mock.
   carry-mcp/                  # @carry/mcp — MCP server: gated, receipted memory tools for any agent (Cursor / Claude Code)
+  carry-cli/                  # @carry/cli — the `carry` command: recall-with-receipt in your terminal, shared vault
+  carry-vercel-ai/            # @carry/vercel-ai — Vercel AI SDK middleware: gate memory + attach a receipt in one line
 examples/
   agent-memory.ts             # runnable: teach → gate → Walrus verify → receipt, no UI.
 contracts/                    # Sui Move package carry::access — on-chain agent×namespace gate + receipt anchoring (+ tests)
 deployments/testnet.json      # live Package ID + AccessPolicy / OwnerCap object IDs
-docs/DEMO.md                  # 90-second demo script
+docs/RUNOFSHOW.md             # the live finalist demo script (Aria → terminal → on-chain → MCP)
+docs/DEMO.md · docs/PUBLISHING.md   # classic 4-screen script · npm publish playbook
 ```
 
 ## Run it locally
@@ -288,7 +365,7 @@ npm install            # installs all workspaces
 #   MEMWAL_ACCOUNT_ID=...   MEMWAL_SERVER_URL=https://relayer.memory.walrus.xyz   MEMWAL_PRIVATE_KEY=...
 
 npm run dev            # http://localhost:3000
-npm test               # 13 tests across the 3 workspaces
+npm test               # 16 tests across the 4 workspaces
 npm run build          # production build
 
 # upload the demo memories to Walrus (prints real blob IDs):
@@ -309,7 +386,7 @@ The demo memory index is in-process, so for the most reliable live-revoke demo I
 ## Tests
 
 ```bash
-npm test    # 13 passing across @carry/web, @carry/core, @carry/walrus
+npm test    # 16 passing across @carry/web, core, walrus, vercel-ai
 ```
 
 The suite covers the access policy, the gate (`recall` — including that blocked namespaces are never returned), the receipt builder, the mock Walrus client, and the mock LLM's refuse-vs-recall behavior. Beyond unit tests, I verified the full flow end-to-end against a **live** stack — capture → cross-model recall → revoke → honest refusal → anchor — with real GPT-4o, Claude, and Walrus testnet.

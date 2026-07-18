@@ -1,4 +1,6 @@
-# Carry — 90-second demo script
+# Carry — 90-second demo script (classic 4-screen flow)
+
+> For the **live finalist demo**, use [RUNOFSHOW.md](RUNOFSHOW.md) — it leads with Aria (`/companion`) and escalates through the terminal, on-chain, and MCP proof. This file is the shorter classic flow across the four core screens.
 
 Run locally for the live demo: `npm run dev` → http://localhost:3000
 Reset to a clean state anytime with **Reset demo** in the sidebar.
