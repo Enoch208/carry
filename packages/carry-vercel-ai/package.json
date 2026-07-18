@@ -1,0 +1,38 @@
+{
+  "name": "@carry/vercel-ai",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Drop-in proof-carrying memory for the Vercel AI SDK — gate memory before generation and attach an Answer Receipt to every response.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "vercel-ai",
+    "ai-sdk",
+    "memory",
+    "agents",
+    "walrus",
+    "sui",
+    "provenance"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "ai": ">=5"
+  },
+  "devDependencies": {
+    "ai": "^6.0.208"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
