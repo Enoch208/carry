@@ -18,7 +18,7 @@ type AnchorState =
 type SuiState =
   | { status: "idle" }
   | { status: "pending" }
-  | { status: "done"; digest: string; allAuthorized: boolean; url: string }
+  | { status: "done"; digest: string; allAuthorized: boolean; url: string; verifyPath: string }
   | { status: "error" };
 
 export function ProofStrip({ receipt }: { receipt: AnswerReceipt }) {
@@ -44,7 +44,7 @@ export function ProofStrip({ receipt }: { receipt: AnswerReceipt }) {
     setSui({ status: "pending" });
     try {
       const r = await anchorOnSui(receipt);
-      if (r.digest) setSui({ status: "done", digest: r.digest, allAuthorized: !!r.allAuthorized, url: r.suiscanUrl! });
+      if (r.txDigest) setSui({ status: "done", digest: r.txDigest, allAuthorized: !!r.allAuthorized, url: r.suiscanUrl!, verifyPath: r.verifyPath ?? "" });
       else setSui({ status: "error" });
     } catch {
       setSui({ status: "error" });
@@ -122,20 +122,20 @@ export function ProofStrip({ receipt }: { receipt: AnswerReceipt }) {
             <p className="font-mono text-[11px] text-success">walrus:{shortRef(anchor.blobId)}</p>
           )}
           {sui.status === "done" && (
-            <a
-              href={sui.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]"
-            >
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
               <span className={cn("inline-flex items-center gap-1 font-medium", sui.allAuthorized ? "text-success" : "text-danger")}>
                 <Icon icon={sui.allAuthorized ? CheckIcon : BlockedIcon} size={12} aria-hidden />
                 consensus: {sui.allAuthorized ? "all authorized" : "NOT authorized"}
               </span>
-              <span className="font-mono text-accent underline decoration-dotted underline-offset-2">
-                sui:{shortRef(sui.digest)} ↗
-              </span>
-            </a>
+              <a href={sui.url} target="_blank" rel="noopener noreferrer" className="font-mono text-muted underline decoration-dotted underline-offset-2 hover:text-accent">
+                tx:{shortRef(sui.digest)} ↗
+              </a>
+              {sui.verifyPath && (
+                <a href={sui.verifyPath} target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline decoration-dotted underline-offset-2">
+                  verify proof ↗
+                </a>
+              )}
+            </div>
           )}
           {(anchor.status === "error" || sui.status === "error") && (
             <p className="text-[11px] text-faint">

@@ -10,5 +10,8 @@ export const sendCompanion = (query: string): Promise<{ answer: string; receipt:
 export const getPolicy = (): Promise<{ policy: Policy }> => fetch("/api/policy").then((r) => r.json());
 export const setAccess = (agentId: AgentId, namespace: NamespaceId, allowed: boolean): Promise<{ policy: Policy }> => post("/api/policy", { agentId, namespace, allowed });
 export const anchorReceipt = (receipt: AnswerReceipt): Promise<{ blobId: string; verified: boolean }> => post("/api/anchor", { receipt });
-export const anchorOnSui = (receipt: AnswerReceipt): Promise<{ digest?: string; allAuthorized?: boolean; suiscanUrl?: string; error?: string }> => post("/api/anchor-sui", { receipt });
+export const anchorOnSui = (
+  receipt: AnswerReceipt
+): Promise<{ txDigest?: string; receiptId?: string; allAuthorized?: boolean; suiscanUrl?: string; verifyPath?: string; walrusBlob?: string; error?: string }> =>
+  post("/api/anchor-sui", { receipt });
 export const resetDemo = (): Promise<{ ok: true }> => post("/api/reset", {});
