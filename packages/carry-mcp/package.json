@@ -1,19 +1,45 @@
 {
   "name": "@carry/mcp",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
+  "license": "MIT",
   "description": "Carry MCP server — gated, receipted, Walrus-verified memory for any agent (Cursor, Claude Code, Claude Desktop).",
+  "bin": {
+    "carry-mcp": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "agents",
+    "memory",
+    "walrus",
+    "sui"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node --import tsx --env-file-if-exists=../../apps/web/.env.local ./src/index.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --external:@modelcontextprotocol/sdk --external:zod --banner:js='#!/usr/bin/env node' --outfile=dist/index.js",
+    "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@carry/walrus": "*",
     "@modelcontextprotocol/sdk": "^1.12.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@carry/walrus": "*",
+    "esbuild": "^0.24.0",
     "tsx": "^4.19.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
