@@ -1,11 +1,14 @@
 {
   "name": "@usecarry/cli",
-  "version": "0.1.0",
-  "description": "carry — proof-carrying memory for AI agents, from your terminal. Remember, recall with a live Answer Receipt, gate access, and anchor proofs on Walrus.",
+  "version": "0.1.1",
+  "description": "carry — proof-carrying memory for AI agents, from your terminal. Remember, recall with a live Answer Receipt, gate access, and anchor tamper-evident proofs on Sui + Walrus.",
   "type": "module",
   "license": "MIT",
   "bin": {
     "carry": "./bin/carry.mjs"
+  },
+  "dependencies": {
+    "@noble/hashes": "^2.2.0"
   },
   "files": [
     "bin",
