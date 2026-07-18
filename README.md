@@ -39,12 +39,12 @@ Everything below is live right now. Click it.
 
 **Live app.** [carrysui.vercel.app](https://carrysui.vercel.app) — the four Carry screens, plus **[Aria](https://carrysui.vercel.app/companion)**, a health companion that only remembers what you allow and proves it on every reply.
 
-**On Sui (testnet).** The gate is a deployed Move package, and `anchor_receipt` makes **consensus recompute the verdict** — a receipt physically cannot claim "authorized" for a namespace the policy revoked.
+**On Sui (testnet).** The gate is a deployed Move package. Anchoring an answer mints a tamper-evident **`Receipt` proof object**: `anchor_receipt` recomputes the verdict on-chain, binds the proof to the exact Walrus blob via blake2b256, and links it into an append-only hash chain. **Verify any proof yourself, no wallet:**
 
-- Package `carry::access` → [`0xf3b458be…064d3`](https://suiscan.xyz/testnet/object/0xf3b458bea7002d364d6b6101dbdadb63a314cd529b2e2a576a6ab03a45c064d3)
-- Revoke `health` for `agent-b` → [tx `3RgyYsbY…`](https://suiscan.xyz/testnet/tx/3RgyYsbYqXumKQG4bV8CeM8KazcYZFRmSzG1zkwPPFED)
-- Anchor an honest receipt (`diet`) → `all_authorized: true` → [tx `FLETh8MA…`](https://suiscan.xyz/testnet/tx/FLETh8MAARu6tNmGh7ZjHWEwEQngChp1B1HehEpKfQSa)
-- Anchor a receipt that lies about the revoked `health` → `all_authorized: false` — **the chain caught it** → [tx `5KUFn1mQ…`](https://suiscan.xyz/testnet/tx/5KUFn1mQiCDWVjDT9ZEHzk3fZyN7MB8mdK2sTMAUipFB)
+- 🔎 **[Verify a live proof ↗](https://carrysui.vercel.app/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215)** — reads the object from Sui, re-hashes the Walrus blob, recomputes the verdict. All three checks green.
+- Package `carry::access` → [`0xf7acc10e…98b6f9`](https://suiscan.xyz/testnet/object/0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9)
+- Honest anchor (`health`) → `all_authorized: true` → [tx `98ppKaNG…`](https://suiscan.xyz/testnet/tx/98ppKaNG3sEMvQAzSvufdJNGUdxmxw6U6uLw62GRHuyR)
+- A receipt that lies (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → [tx `HvWS6oUB…`](https://suiscan.xyz/testnet/tx/HvWS6oUB75GPwUwCsixNkFZSR2aWnwv8RczgZWTqE9A2)
 
 **On Walrus (testnet).** The memories aren't fixtures — they're real blobs anyone can resolve:
 
@@ -242,31 +242,32 @@ Because the CLI and the MCP server read and write the **same vault file**, a fac
 
 ## On-chain enforcement (Sui testnet)
 
-The gate and the receipt verdict aren't only server logic — they're a deployed Move package, `carry::access`. Granting or revoking a namespace is a **Sui transaction**, and `anchor_receipt` makes the **chain recompute** whether every used namespace was actually allowed for the agent. So a receipt physically cannot claim "authorized" for a namespace the policy revoked — consensus decides the verdict, not my server.
+The gate and the receipt verdict aren't only server logic — they're a deployed Move package, `carry::access`. Anchoring an answer mints an owned, `Display`-enabled **`Receipt` proof object**. `anchor_receipt` does three things the app cannot fake:
+
+1. **Recomputes the verdict** — re-checks `is_allowed` for every used namespace and sets `all_authorized` itself.
+2. **Binds to content** — stores a `digest` = blake2b256 of the exact Walrus receipt blob.
+3. **Chains it** — `chain_digest = blake2b256(prev_digest ++ digest)`, an append-only hash chain, so a receipt can't be quietly reordered or deleted.
 
 | Object | Sui testnet |
 | --- | --- |
-| Package `carry::access` | [`0xf3b458be…064d3`](https://suiscan.xyz/testnet/object/0xf3b458bea7002d364d6b6101dbdadb63a314cd529b2e2a576a6ab03a45c064d3) |
-| `AccessPolicy` (shared) | [`0x1636920d…5edfb`](https://suiscan.xyz/testnet/object/0x1636920dbdacff4d2c6be0a3c2344c74308de24e5df89e194d6fceffe1e5edfb) |
+| Package `carry::access` | [`0xf7acc10e…98b6f9`](https://suiscan.xyz/testnet/object/0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9) |
+| `AccessPolicy` (shared) | [`0x7bac6b51…f2cd51`](https://suiscan.xyz/testnet/object/0x7bac6b5168a646d7ef06a05fcdebb1526a831bae91c42bb1fd295f976af2cd51) |
 
-Proven live — revoke `health` for `agent-b`, then anchor two receipts:
+### The walletless verifier — don't trust Carry, verify it
 
-- **anchor #1** uses `diet` → `all_authorized: true` · [tx](https://suiscan.xyz/testnet/tx/FLETh8MAARu6tNmGh7ZjHWEwEQngChp1B1HehEpKfQSa)
-- **anchor #2** falsely claims the revoked `health` → `all_authorized: false` — **the chain caught it** · [tx](https://suiscan.xyz/testnet/tx/5KUFn1mQiCDWVjDT9ZEHzk3fZyN7MB8mdK2sTMAUipFB)
+Every proof gets a shareable `/verify/<receiptId>` page that, with **no wallet**, reads the object from Sui, re-hashes the Walrus blob, and recomputes the verdict — three independent checks, none of which trust Carry's servers. `aria` is denied the `billing` namespace on-chain, so:
 
-**This is wired into the live app and CLI — not just pre-made transactions.** Click **Anchor on Sui** under any Answer Receipt in Aria, or run `carry anchor --onchain`, and a real `anchor_receipt` transaction is submitted while you watch. `aria` is denied the `billing` namespace on-chain, so:
+- **honest** proof (`health`) → all three checks green, `all_authorized: true` → **[verify ↗](https://carrysui.vercel.app/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215)** · [tx](https://suiscan.xyz/testnet/tx/98ppKaNG3sEMvQAzSvufdJNGUdxmxw6U6uLw62GRHuyR)
+- **a receipt that lies** (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → **[verify ↗](https://carrysui.vercel.app/verify/0xe57c9af7240de356b171fb8f270cef677627cd8683695390cda1151d95df9199)** · [tx](https://suiscan.xyz/testnet/tx/HvWS6oUB75GPwUwCsixNkFZSR2aWnwv8RczgZWTqE9A2)
 
-- honest receipt (`health`) anchored from the app → `all_authorized: true` · [tx](https://suiscan.xyz/testnet/tx/FoNkbu3zJRhx3pLoSexLgt56vdjHdqvRmCtpeJ6vf4L6)
-- `carry anchor --onchain --claim billing` (a receipt that lies) → `all_authorized: false` — **the chain caught it, live** · [tx](https://suiscan.xyz/testnet/tx/FshNbrukcU8sk2TDCFoeBvKJGaX3j34cryhQ1cs8TEqc)
-
-Reproduce it yourself:
+**Wired into the live app and CLI — not pre-made transactions.** Click **Anchor on Sui** under any Answer Receipt in Aria, or run `carry anchor --onchain`, and a real `anchor_receipt` transaction is submitted, an object minted, and a `verify` link handed back while you watch. The blake2b256 layout is pinned to a golden vector so the Move contract and the TypeScript verifier agree byte-for-byte:
 
 ```bash
-sui move test --path contracts      # gate logic, unit-tested
+sui move test --path contracts      # gate + blake2b256 golden + anchor-mints-and-chains
 sui client publish contracts        # deploy; then call create / set_access / anchor_receipt
 ```
 
-Live object IDs and the proof transactions are in [`deployments/testnet.json`](deployments/testnet.json).
+Live object IDs, example proofs, and the proof transactions are in [`deployments/testnet.json`](deployments/testnet.json).
 
 ## Engineering decisions & the hard problems
 
