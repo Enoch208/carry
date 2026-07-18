@@ -7,6 +7,8 @@
 [![CI](https://github.com/Enoch208/carry/actions/workflows/ci.yml/badge.svg)](https://github.com/Enoch208/carry/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-16%20passing-10b981)](#tests)
+[![npm @usecarry/cli](https://img.shields.io/npm/v/@usecarry/cli?label=%40usecarry%2Fcli&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/cli)
+[![npm @usecarry/mcp](https://img.shields.io/npm/v/@usecarry/mcp?label=%40usecarry%2Fmcp&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/mcp)
 [![Walrus](https://img.shields.io/badge/storage-Walrus%20testnet-4DA2FF)](https://www.walrus.xyz)
 [![Seal](https://img.shields.io/badge/encryption-Seal%20via%20MemWal-2563eb)](https://github.com/MystenLabs/MemWal)
 ![Stack](https://img.shields.io/badge/Next.js%2016%20·%20React%2019%20·%20TypeScript-1f1f23)
@@ -205,14 +207,14 @@ The gate and receipts aren't locked inside the demo UI. Carry ships an **MCP ser
 | `carry_list_memories` | List every memory + its Walrus ref |
 | `carry_policy` | Show the allow/deny policy |
 
-Point your agent at it (memory index persists on disk, content on Walrus):
+Point your agent at it — published on npm, so no local checkout needed (memory index persists on disk, content on Walrus):
 
 ```json
 {
   "mcpServers": {
     "carry": {
-      "command": "node",
-      "args": ["--import", "tsx", "/ABSOLUTE/PATH/carry/packages/carry-mcp/src/index.ts"],
+      "command": "npx",
+      "args": ["-y", "@usecarry/mcp"],
       "env": {
         "WALRUS_PUBLISHER": "https://publisher.walrus-testnet.walrus.space",
         "WALRUS_AGGREGATOR": "https://aggregator.walrus-testnet.walrus.space"
