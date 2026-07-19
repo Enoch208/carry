@@ -17,7 +17,7 @@
 
 Most AI-memory projects answer one question: _can an agent remember across sessions?_ Carry answers the harder one — **can you prove what an agent used to answer you, and stop it from touching memory it was never allowed to?** Every memory-based answer renders a verifiable **Answer Receipt** — the memories it used, whether each was authorized, whether the blob still resolves on Walrus, and the namespaces it was blocked from — and the access policy is enforced at _retrieval_, so the model physically never sees memory it isn't allowed to use. Built on **Walrus · Seal · MemWal** for **Sui Overflow 2026** (Walrus track).
 
-**[ Watch the demo ↗ ](https://youtu.be/xnmx2WimhRk)** &nbsp;·&nbsp; **[ Live demo ↗ ](https://carrysui.vercel.app)** &nbsp;·&nbsp; **[ How it works ↗ ](#architecture)** &nbsp;·&nbsp; **[ Run it locally ↗ ](#run-it-locally)**
+**[ Watch the demo ↗ ](https://youtu.be/xnmx2WimhRk)** &nbsp;·&nbsp; **[ Live demo ↗ ](https://usecarry.xyz)** &nbsp;·&nbsp; **[ How it works ↗ ](#architecture)** &nbsp;·&nbsp; **[ Run it locally ↗ ](#run-it-locally)**
 
 </div>
 
@@ -37,7 +37,7 @@ One fact is taught to **Agent A (GPT-4o)** and captured to Walrus as a real blob
 
 Everything below is live right now. Click it.
 
-**Live app.** [carrysui.vercel.app](https://carrysui.vercel.app) — the four Carry screens, plus **[Aria](https://carrysui.vercel.app/companion)**, a health companion that only remembers what you allow and proves it on every reply.
+**Live app.** [https://usecarry.xyz](https://usecarry.xyz) — the four Carry screens, plus **[Aria](https://carrysui.vercel.app/companion)**, a health companion that only remembers what you allow and proves it on every reply.
 
 **On Sui (testnet).** The gate is a deployed Move package. Anchoring an answer mints a tamper-evident **`Receipt` proof object**: `anchor_receipt` recomputes the verdict on-chain, binds the proof to the exact Walrus blob via blake2b256, and links it into an append-only hash chain. **Verify any proof yourself, no wallet:**
 
@@ -119,7 +119,7 @@ Carry isn't a screen — it's a memory layer that proves itself everywhere an ag
 
 | Surface | What it is |
 |---|---|
-| **Aria** — consumer app | A health companion at [`/companion`](https://carrysui.vercel.app/companion) that only recalls what you allow. Flip the gate and watch it prove, live, that your health data was *never fetched* — the vault visibly locks, the gate log streams the decision, the receipt shows `blocked`. |
+| **Aria** — consumer app | A health companion at [`/companion`](https://usecarry.xyz/companion) that only recalls what you allow. Flip the gate and watch it prove, live, that your health data was *never fetched* — the vault visibly locks, the gate log streams the decision, the receipt shows `blocked`. |
 | **`carry`** — CLI | Proof-carrying memory in your terminal: `carry recall …` prints an Answer Receipt with every blob verified on Walrus; `carry anchor --onchain` submits a live Sui transaction. |
 | **`@usecarry/mcp`** — MCP server | Drops the same memory + receipts into Cursor / Claude Code / Claude Desktop. |
 | **`@usecarry/vercel-ai`** — SDK adapter | Wrap any Vercel AI SDK model in one line: gated memory injected before generation, an Answer Receipt on every call. |
