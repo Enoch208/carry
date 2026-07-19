@@ -24,3 +24,6 @@ dist/
 
 # Move build artifacts
 contracts/build/
+
+# Remotion render output
+video/out/

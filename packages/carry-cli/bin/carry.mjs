@@ -12,7 +12,7 @@ const STORE_PATH = process.env.CARRY_STORE || `${homedir()}/.carry/store.json`;
 const EPOCHS = 50;
 const PACKAGE_ID = process.env.CARRY_PACKAGE_ID || "0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9";
 const ACCESS_POLICY = process.env.CARRY_ACCESS_POLICY || "0x7bac6b5168a646d7ef06a05fcdebb1526a831bae91c42bb1fd295f976af2cd51";
-const VERIFY_BASE = process.env.CARRY_VERIFY_URL || "https://carrysui.vercel.app/verify";
+const VERIFY_BASE = process.env.CARRY_VERIFY_URL || "https://usecarry.xyz/verify";
 
 // ── content-binding digest (blake2b256 of canonical JSON) ───────────────────
 const sortValue = (v) =>

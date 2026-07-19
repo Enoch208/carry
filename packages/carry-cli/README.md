@@ -37,6 +37,6 @@ Works out of the box against Walrus testnet — no keys required.
 
 ## How it works
 
-The gate is enforced **before** retrieval: `recall` filters to allowed namespaces, then does a live aggregator `GET` on each used blob to prove it resolves. Blocked namespaces are never fetched — the receipt shows them as blocked, not omitted. This is the same engine behind the [Carry](https://carrysui.vercel.app) app and its on-chain `carry::access` policy on Sui.
+The gate is enforced **before** retrieval: `recall` filters to allowed namespaces, then does a live aggregator `GET` on each used blob to prove it resolves. Blocked namespaces are never fetched — the receipt shows them as blocked, not omitted. This is the same engine behind the [Carry](https://usecarry.xyz) app and its on-chain `carry::access` policy on Sui.
 
 MIT © Carry

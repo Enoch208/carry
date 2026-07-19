@@ -11,7 +11,7 @@ Target: **~3 minutes**, then Q&A. Lead with feeling, escalate to proof, close on
 - [ ] `npm run dev` running → `http://localhost:3000` — open **`/companion`** in the front tab.
 - [ ] A **terminal** tab, large font, ready. Run `carry seed` once so the vault is warm.
 - [ ] `sui client active-address` set to testnet with a little SUI (`sui client gas`) — needed for the live on-chain anchor (`carry anchor --onchain` and the app's "Anchor on Sui"). If Sui isn't set up, the on-chain beat falls back to the pre-made Suiscan tx in the README.
-- [ ] Browser tabs pre-opened (in case wifi is slow): the **violation tx** on Suiscan, `carrysui.vercel.app`.
+- [ ] Browser tabs pre-opened (in case wifi is slow): the **violation tx** on Suiscan, `usecarry.xyz`.
 - [ ] Vault clean: in the app, health granted (Aria's toggle blue). `carry access grant health` in the terminal.
 - [ ] Phones-down moment planned for the revoke — that's the beat you want them watching.
 - [ ] Backup ready: the recorded demo video + the screenshots (see bottom).
@@ -65,7 +65,7 @@ carry anchor --onchain --claim billing        # → all_authorized: false — th
 
 ## Close — the thesis + the ask (2:30–3:00)
 
-> "So: **one vault, every agent, provable everywhere.** Cross-model memory, gated before generation, stored on Walrus, enforced on Sui — and every answer carries its own proof. That's Carry. Everything you saw is live on testnet right now at carrysui.vercel.app. Thank you."
+> "So: **one vault, every agent, provable everywhere.** Cross-model memory, gated before generation, stored on Walrus, enforced on Sui — and every answer carries its own proof. That's Carry. Everything you saw is live on testnet right now at usecarry.xyz. Thank you."
 
 Land it, stop talking, take questions.
 
@@ -74,7 +74,7 @@ Land it, stop talking, take questions.
 ## If something breaks (backup plan)
 
 - **Testnet slow / wifi flaky:** Carry is mock-first. Without Walrus env it degrades to deterministic mocks and the whole flow still runs — the receipts just say `mock` instead of a blob. The *gate and revoke logic is identical.* Don't apologize for it; the story is the same.
-- **Live app won't load:** switch to `carrysui.vercel.app` (Vercel), or play the recorded demo video (in the repo root / YouTube link in the README).
+- **Live app won't load:** switch to `usecarry.xyz` (Vercel), or play the recorded demo video (in the repo root / YouTube link in the README).
 - **Terminal misbehaves:** skip Act 2's terminal, go straight to the Suiscan tx tab — the on-chain proof is the strongest single artifact.
 - **Everything dies:** the README's **Proof — nothing here is a mockup** section is all live links. Screen-share that and click through: the package on Suiscan, the two anchor txns, the Walrus blobs. It proves the whole thesis without the app.
 

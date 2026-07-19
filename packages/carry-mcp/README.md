@@ -37,6 +37,6 @@ Omit the `env` block to run against a deterministic mock (no network).
 | `carry_list_memories` | List every memory + its Walrus ref |
 | `carry_policy` | Show the allow/deny policy |
 
-Part of [Carry](https://carrysui.vercel.app) — proof-carrying memory for AI agents, with an on-chain `carry::access` policy on Sui.
+Part of [Carry](https://usecarry.xyz) — proof-carrying memory for AI agents, with an on-chain `carry::access` policy on Sui.
 
 MIT © Carry

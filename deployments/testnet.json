@@ -20,6 +20,6 @@
   "exampleReceipts": {
     "honest_all_authorized_true": "0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215",
     "tampered_all_authorized_false": "0xe57c9af7240de356b171fb8f270cef677627cd8683695390cda1151d95df9199",
-    "verifyUrl": "https://carrysui.vercel.app/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215"
+    "verifyUrl": "https://usecarry.xyz/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215"
   }
 }

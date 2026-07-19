@@ -42,6 +42,6 @@ A raw vector-DB memory layer hands your model *everything* it retrieves and hope
 
 Options: `{ store, agent?, onReceipt? }`. `onReceipt(receipt)` fires on every call with `{ agent, query, used, blockedNamespaces, createdAt }`.
 
-Part of [Carry](https://carrysui.vercel.app) — proof-carrying memory for AI agents, stored on Walrus, enforced on Sui.
+Part of [Carry](https://usecarry.xyz) — proof-carrying memory for AI agents, stored on Walrus, enforced on Sui.
 
 MIT © Carry
