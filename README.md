@@ -9,6 +9,7 @@
 [![Tests](https://img.shields.io/badge/tests-16%20passing-10b981)](#tests)
 [![npm @usecarry/cli](https://img.shields.io/npm/v/@usecarry/cli?label=%40usecarry%2Fcli&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/cli)
 [![npm @usecarry/mcp](https://img.shields.io/npm/v/@usecarry/mcp?label=%40usecarry%2Fmcp&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/mcp)
+[![Docs](https://img.shields.io/badge/docs-docs.usecarry.xyz-4DA2FF)](https://docs.usecarry.xyz)
 [![Walrus](https://img.shields.io/badge/storage-Walrus%20testnet-4DA2FF)](https://www.walrus.xyz)
 [![Seal](https://img.shields.io/badge/encryption-Seal%20via%20MemWal-2563eb)](https://github.com/MystenLabs/MemWal)
 ![Stack](https://img.shields.io/badge/Next.js%2016%20·%20React%2019%20·%20TypeScript-1f1f23)
@@ -17,7 +18,7 @@
 
 Most AI-memory projects answer one question: _can an agent remember across sessions?_ Carry answers the harder one — **can you prove what an agent used to answer you, and stop it from touching memory it was never allowed to?** Every memory-based answer renders a verifiable **Answer Receipt** — the memories it used, whether each was authorized, whether the blob still resolves on Walrus, and the namespaces it was blocked from — and the access policy is enforced at _retrieval_, so the model physically never sees memory it isn't allowed to use. Built on **Walrus · Seal · MemWal** for **Sui Overflow 2026** (Walrus track).
 
-**[ Watch the demo ↗ ](https://youtu.be/xnmx2WimhRk)** &nbsp;·&nbsp; **[ Live demo ↗ ](https://usecarry.xyz)** &nbsp;·&nbsp; **[ How it works ↗ ](#architecture)** &nbsp;·&nbsp; **[ Run it locally ↗ ](#run-it-locally)**
+**[ Live app ↗ ](https://usecarry.xyz)** &nbsp;·&nbsp; **[ Docs ↗ ](https://docs.usecarry.xyz)** &nbsp;·&nbsp; **[ Watch the demo ↗ ](https://youtu.be/xnmx2WimhRk)** &nbsp;·&nbsp; **[ How it works ↗ ](#architecture)** &nbsp;·&nbsp; **[ Run it locally ↗ ](#run-it-locally)**
 
 </div>
 
@@ -27,7 +28,7 @@ Most AI-memory projects answer one question: _can an agent remember across sessi
 
 https://github.com/user-attachments/assets/3bf417d7-0519-4bfe-a6cd-d43488ee29f8
 
-_~3 minutes — the real app driven live (GPT-4o, Claude, Walrus testnet), plus the MCP server and on-chain enforcement. Also on [YouTube](https://youtu.be/xnmx2WimhRk) · try it live at **[carrysui.vercel.app](https://carrysui.vercel.app)**._
+_~3 minutes — the real app driven live (GPT-4o, Claude, Walrus testnet), plus the MCP server and on-chain enforcement. Also on [YouTube](https://youtu.be/xnmx2WimhRk) · try it live at **[usecarry.xyz](https://usecarry.xyz)**._
 
 One fact is taught to **Agent A (GPT-4o)** and captured to Walrus as a real blob. **Agent B (Claude)** — a different provider — recalls it and answers, rendering an Answer Receipt that shows the exact memory used and verifies its blob on-chain. Then I revoke `agent-b`'s access to the `health` namespace, ask again, and watch the agent truthfully refuse — *"I cannot access your Health memory"* — because the gate ran **before** the model, and the revoked memory was never fetched. Finally I anchor the receipt on Walrus and get back a real, verifiable blob ID.
 
@@ -37,11 +38,13 @@ One fact is taught to **Agent A (GPT-4o)** and captured to Walrus as a real blob
 
 Everything below is live right now. Click it.
 
-**Live app.** [https://usecarry.xyz](https://usecarry.xyz) — the four Carry screens, plus **[Aria](https://carrysui.vercel.app/companion)**, a health companion that only remembers what you allow and proves it on every reply.
+**Live app.** [usecarry.xyz](https://usecarry.xyz) — the four Carry screens, plus **[Aria](https://usecarry.xyz/companion)**, a health companion that only remembers what you allow and proves it on every reply.
+
+**Technical docs.** [docs.usecarry.xyz](https://docs.usecarry.xyz) — 20+ pages: architecture, the gate, Answer Receipts, the Move contract, the hash chain, the walletless verifier, and integration guides for the CLI, MCP, and AI SDK.
 
 **On Sui (testnet).** The gate is a deployed Move package. Anchoring an answer mints a tamper-evident **`Receipt` proof object**: `anchor_receipt` recomputes the verdict on-chain, binds the proof to the exact Walrus blob via blake2b256, and links it into an append-only hash chain. **Verify any proof yourself, no wallet:**
 
-- 🔎 **[Verify a live proof ↗](https://carrysui.vercel.app/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215)** — reads the object from Sui, re-hashes the Walrus blob, recomputes the verdict. All three checks green.
+- 🔎 **[Verify a live proof ↗](https://usecarry.xyz/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215)** — reads the object from Sui, re-hashes the Walrus blob, recomputes the verdict. All three checks green.
 - Package `carry::access` → [`0xf7acc10e…98b6f9`](https://suiscan.xyz/testnet/object/0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9)
 - Honest anchor (`health`) → `all_authorized: true` → [tx `98ppKaNG…`](https://suiscan.xyz/testnet/tx/98ppKaNG3sEMvQAzSvufdJNGUdxmxw6U6uLw62GRHuyR)
 - A receipt that lies (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → [tx `HvWS6oUB…`](https://suiscan.xyz/testnet/tx/HvWS6oUB75GPwUwCsixNkFZSR2aWnwv8RczgZWTqE9A2)
@@ -257,8 +260,8 @@ The gate and the receipt verdict aren't only server logic — they're a deployed
 
 Every proof gets a shareable `/verify/<receiptId>` page that, with **no wallet**, reads the object from Sui, re-hashes the Walrus blob, and recomputes the verdict — three independent checks, none of which trust Carry's servers. `aria` is denied the `billing` namespace on-chain, so:
 
-- **honest** proof (`health`) → all three checks green, `all_authorized: true` → **[verify ↗](https://carrysui.vercel.app/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215)** · [tx](https://suiscan.xyz/testnet/tx/98ppKaNG3sEMvQAzSvufdJNGUdxmxw6U6uLw62GRHuyR)
-- **a receipt that lies** (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → **[verify ↗](https://carrysui.vercel.app/verify/0xe57c9af7240de356b171fb8f270cef677627cd8683695390cda1151d95df9199)** · [tx](https://suiscan.xyz/testnet/tx/HvWS6oUB75GPwUwCsixNkFZSR2aWnwv8RczgZWTqE9A2)
+- **honest** proof (`health`) → all three checks green, `all_authorized: true` → **[verify ↗](https://usecarry.xyz/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215)** · [tx](https://suiscan.xyz/testnet/tx/98ppKaNG3sEMvQAzSvufdJNGUdxmxw6U6uLw62GRHuyR)
+- **a receipt that lies** (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → **[verify ↗](https://usecarry.xyz/verify/0xe57c9af7240de356b171fb8f270cef677627cd8683695390cda1151d95df9199)** · [tx](https://suiscan.xyz/testnet/tx/HvWS6oUB75GPwUwCsixNkFZSR2aWnwv8RczgZWTqE9A2)
 
 **Wired into the live app and CLI — not pre-made transactions.** Click **Anchor on Sui** under any Answer Receipt in Aria, or run `carry anchor --onchain`, and a real `anchor_receipt` transaction is submitted, an object minted, and a `verify` link handed back while you watch. The blake2b256 layout is pinned to a golden vector so the Move contract and the TypeScript verifier agree byte-for-byte:
 
