@@ -1,5 +1,7 @@
 import { SuiGrpcClient } from "@mysten/sui/grpc";
-import { blake2b256Hex, canonicalBytes, toHex } from "@/lib/blake";
+import { blake2b256Hex, canonicalBytes, toHex, fromHex } from "@/lib/blake";
+import { Transaction } from "@mysten/sui/transactions";
+import { anchorSigner } from "@/lib/sui";
 import { DEFAULT_NETWORK, netCfg, type Network } from "@/lib/networks";
 
 export type ManifestEntry = { memoryId: string; namespace: string; walrusRef: string };
@@ -133,4 +135,54 @@ export async function recoverVault(network: Network = DEFAULT_NETWORK): Promise<
   } catch (e) {
     return { ...base, error: (e as Error).message };
   }
+}
+
+/**
+ * Publish a new manifest and move the vault to it. `expected_version` makes the
+ * write optimistic: if another device advanced the vault since we read it, the
+ * chain rejects this rather than silently overwriting their memories.
+ */
+export async function publishManifest(
+  entries: ManifestEntry[],
+  storeBlob: (data: unknown) => Promise<string>,
+  network: Network = DEFAULT_NETWORK
+): Promise<{ manifestBlob: string; manifestVersion: number } | null> {
+  const cfg = netCfg(network);
+  if (!cfg.carryVault) return null;
+
+  const client = new SuiGrpcClient({ baseUrl: cfg.grpcUrl, network });
+  const { object } = await client.getObject({ objectId: cfg.carryVault, include: { json: true } });
+  const current = object?.json as Record<string, unknown> | undefined;
+  if (!current) return null;
+  const expected = Number(current.manifest_version ?? 0);
+
+  const manifest: Manifest = {
+    schema: "carry.vault.manifest/1",
+    policy: cfg.accessPolicy,
+    memoryNetwork: network,
+    memoryAggregator: cfg.walrusAggregator,
+    createdAt: new Date(0).toISOString(),
+    memories: entries,
+  };
+  const digestHex = blake2b256Hex(canonicalBytes(manifest));
+  const manifestBlob = await storeBlob(manifest);
+
+  const tx = new Transaction();
+  tx.moveCall({
+    target: `${cfg.packageId}::access::update_manifest`,
+    arguments: [
+      tx.object(cfg.carryVault),
+      tx.pure.string(manifestBlob),
+      tx.pure.vector("u8", Array.from(fromHex(digestHex))),
+      tx.pure.u64(BigInt(expected)),
+      tx.object("0x6"),
+    ],
+  });
+  const res = await client.signAndExecuteTransaction({
+    transaction: tx,
+    signer: anchorSigner(),
+    include: { effects: true },
+  });
+  if (res.$kind !== "Transaction") throw new Error("vault update rejected on-chain");
+  return { manifestBlob, manifestVersion: expected + 1 };
 }

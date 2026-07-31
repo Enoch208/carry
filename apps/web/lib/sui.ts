@@ -38,7 +38,7 @@ export type OnchainAnchor = {
  * by anyone, so this signer can append proofs but can never change the gate.
  * Compromising it cannot widen what an agent may read.
  */
-function anchorSigner(): Ed25519Keypair {
+export function anchorSigner(): Ed25519Keypair {
   const key = process.env.CARRY_SIGNER_KEY;
   if (!key) throw new Error("CARRY_SIGNER_KEY is not set — on-chain anchoring needs a server signer");
   return Ed25519Keypair.fromSecretKey(key.trim());

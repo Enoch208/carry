@@ -5,6 +5,7 @@ import { buildReceipt } from "@carry/core";
 
 export async function POST(req: Request) {
   const { agentId, query } = await req.json();
+  await store.ready();
   const { memories, blockedNamespaces } = recall(agentId, query, store.list(), store.getPolicy());
   const answer = await getLLM(agentId).complete({ agentId, query, memories });
   const checks = await Promise.all(

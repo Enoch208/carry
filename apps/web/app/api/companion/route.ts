@@ -5,6 +5,7 @@ import { ARIA_AGENT, ARIA_PERSONA, ARIA_BLOCKED, ARIA_IDLE } from "@/lib/compani
 
 export async function POST(req: Request) {
   const { query } = await req.json();
+  await store.ready();
   const { memories, blockedNamespaces } = recall(ARIA_AGENT, query, store.list(), store.getPolicy());
 
   const answer =

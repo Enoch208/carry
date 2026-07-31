@@ -1,6 +1,7 @@
 import { store } from "@/lib/store";
 
 export async function GET() {
+  await store.ready();
   return Response.json({ memories: store.list() });
 }
 export async function POST(req: Request) {

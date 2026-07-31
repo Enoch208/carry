@@ -37,7 +37,7 @@ export const NETWORKS: Record<Network, NetCfg> = {
       process.env.WALRUS_MAINNET_AGGREGATOR || "https://aggregator.walrus-mainnet.walrus.space",
     carryVault:
       process.env.CARRY_MAINNET_VAULT ||
-      "0x7d7afe98ab2c57ca0817e3b58128bfdf2cf2a86c5f2474024378c11b1f702c48",
+      "0x10654b9653a2579334982185710dd306000452530d856b8d71560fb4c1bbc413",
   },
 };
 
