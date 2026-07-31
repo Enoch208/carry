@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { verifyReceipt } from "@/lib/verify";
 import { suiscanObject } from "@/lib/sui";
+import { netCfg, resolveNetwork } from "@/lib/networks";
 import { Icon, CheckIcon, BlockedIcon, ArrowUpRightIcon } from "@/components/icons";
 
 export const metadata: Metadata = {
@@ -10,7 +11,6 @@ export const metadata: Metadata = {
   description: "Independently verify a Carry Proof against Sui and Walrus — no wallet, read-only.",
 };
 
-const AGG = process.env.WALRUS_AGGREGATOR || "https://aggregator.walrus-testnet.walrus.space";
 const short = (r: string) => (r && r.length > 20 ? `${r.slice(0, 10)}…${r.slice(-8)}` : r);
 
 function Row({ k, children }: { k: string; children: React.ReactNode }) {
@@ -22,9 +22,18 @@ function Row({ k, children }: { k: string; children: React.ReactNode }) {
   );
 }
 
-export default async function VerifyPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function VerifyPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ network?: string }>;
+}) {
   const { id } = await params;
-  const { found, receipt, checks, allOk } = await verifyReceipt(id);
+  const sp = await searchParams;
+  const network = resolveNetwork(sp.network);
+  const AGG = netCfg(network).walrusAggregator;
+  const { found, receipt, checks, allOk } = await verifyReceipt(id, network);
 
   return (
     <div className="min-h-dvh bg-[#050505] px-6 py-10">
@@ -33,7 +42,7 @@ export default async function VerifyPage({ params }: { params: Promise<{ id: str
           <Image src="/carry_mark.png" alt="" width={594} height={662} className="h-5 w-auto" />
           <div className="flex-1">
             <h1 className="text-[15px] font-semibold text-fg">Proof Verifier</h1>
-            <p className="text-[12px] text-faint">no wallet · read-only · recomputed against Sui &amp; Walrus</p>
+            <p className="text-[12px] text-faint">no wallet · read-only · {network} · recomputed against Sui &amp; Walrus</p>
           </div>
           <Link href="/companion" className="text-[12px] text-faint transition-colors hover:text-accent">
             Carry ↗
@@ -90,7 +99,7 @@ export default async function VerifyPage({ params }: { params: Promise<{ id: str
                 </a>
               </Row>
               <Row k="object">
-                <a href={suiscanObject(id)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent underline decoration-dotted">
+                <a href={suiscanObject(id, network)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent underline decoration-dotted">
                   {short(id)} <Icon icon={ArrowUpRightIcon} size={12} aria-hidden />
                 </a>
               </Row>

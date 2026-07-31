@@ -4,23 +4,28 @@ import { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
 import { Transaction } from "@mysten/sui/transactions";
 import { bcs } from "@mysten/sui/bcs";
 import { toHex } from "@/lib/blake";
+import { DEFAULT_NETWORK, netCfg, type Network } from "@/lib/networks";
 
 const pexec = promisify(execFile);
 
-export const PKG = process.env.CARRY_PACKAGE_ID || "0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9";
-export const POLICY = process.env.CARRY_ACCESS_POLICY || "0x7bac6b5168a646d7ef06a05fcdebb1526a831bae91c42bb1fd295f976af2cd51";
-const NETWORK = process.env.SUI_NETWORK || "testnet";
-// The public fullnode.<net>.sui.io endpoints no longer serve raw JSON-RPC; use a working public RPC.
-const RPC_URL = process.env.SUI_RPC_URL || "https://sui-testnet-rpc.publicnode.com";
 const CLOCK = "0x6";
 const ZERO = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-const client = new SuiJsonRpcClient({ url: RPC_URL, network: NETWORK });
+// Default-network convenience exports (kept for existing callers).
+export const PKG = netCfg(DEFAULT_NETWORK).packageId;
+export const POLICY = netCfg(DEFAULT_NETWORK).accessPolicy;
 
-export const suiscanTx = (d: string) => `https://suiscan.xyz/${NETWORK}/tx/${d}`;
-export const suiscanObject = (id: string) => `https://suiscan.xyz/${NETWORK}/object/${id}`;
+const clients: Partial<Record<Network, SuiJsonRpcClient>> = {};
+function clientFor(network: Network): SuiJsonRpcClient {
+  const cfg = netCfg(network);
+  clients[network] ??= new SuiJsonRpcClient({ url: cfg.rpcUrl, network });
+  return clients[network]!;
+}
 
-// ── anchoring (write, server-side via the Sui CLI) ──────────────────────────
+export const suiscanTx = (d: string, network: Network = DEFAULT_NETWORK) => `${netCfg(network).suiscan}/tx/${d}`;
+export const suiscanObject = (id: string, network: Network = DEFAULT_NETWORK) => `${netCfg(network).suiscan}/object/${id}`;
+
+// ── anchoring (write, server-side via the Sui CLI on its active env) ─────────
 
 export type OnchainAnchor = {
   txDigest: string;
@@ -45,18 +50,15 @@ async function runSui(args: string[]): Promise<string> {
   throw lastErr ?? new Error("sui CLI not found");
 }
 
-export async function anchorOnChain(args: {
-  answerId: string;
-  agent: string;
-  used: string[];
-  blocked: string[];
-  digestHex: string;
-  walrusBlob: string;
-}): Promise<OnchainAnchor> {
+export async function anchorOnChain(
+  args: { answerId: string; agent: string; used: string[]; blocked: string[]; digestHex: string; walrusBlob: string },
+  network: Network = DEFAULT_NETWORK
+): Promise<OnchainAnchor> {
+  const cfg = netCfg(network);
   const stdout = await runSui([
     "client", "call",
-    "--package", PKG, "--module", "access", "--function", "anchor_receipt",
-    "--args", POLICY, args.answerId, args.agent,
+    "--package", cfg.packageId, "--module", "access", "--function", "anchor_receipt",
+    "--args", cfg.accessPolicy, args.answerId, args.agent,
     JSON.stringify(args.used), JSON.stringify(args.blocked),
     "0x" + args.digestHex.replace(/^0x/, ""), args.walrusBlob, CLOCK,
     "--gas-budget", "100000000", "--json",
@@ -71,25 +73,31 @@ export async function anchorOnChain(args: {
     (c) => c.type === "created" && (c.objectType ?? "").endsWith("::access::Receipt")
   );
   const receiptId = created?.objectId ?? "";
+  const verifyQuery = network === "testnet" ? "" : `?network=${network}`;
   return {
     txDigest: parsed.digest ?? "",
     receiptId,
     allAuthorized: event?.parsedJson?.all_authorized ?? false,
-    suiscanUrl: suiscanTx(parsed.digest ?? ""),
-    verifyPath: receiptId ? `/verify/${receiptId}` : "",
+    suiscanUrl: suiscanTx(parsed.digest ?? "", network),
+    verifyPath: receiptId ? `/verify/${receiptId}${verifyQuery}` : "",
   };
 }
 
 // ── reads (work anywhere — read-only RPC, no wallet, no CLI) ─────────────────
 
-export async function readIsAllowed(agent: string, namespace: string, policyId = POLICY): Promise<boolean> {
+export async function readIsAllowed(
+  agent: string,
+  namespace: string,
+  policyId: string,
+  network: Network = DEFAULT_NETWORK
+): Promise<boolean> {
   try {
     const tx = new Transaction();
     tx.moveCall({
-      target: `${PKG}::access::is_allowed`,
+      target: `${netCfg(network).packageId}::access::is_allowed`,
       arguments: [tx.object(policyId), tx.pure.string(agent), tx.pure.string(namespace)],
     });
-    const res = await client.devInspectTransactionBlock({ transactionBlock: tx, sender: ZERO });
+    const res = await clientFor(network).devInspectTransactionBlock({ transactionBlock: tx, sender: ZERO });
     const ret = res.results?.[0]?.returnValues?.[0];
     if (!ret) return false; // fail-closed
     return bcs.Bool.parse(Uint8Array.from(ret[0])) === true;
@@ -126,9 +134,9 @@ export type OnchainReceipt = {
   timestampMs: number;
 };
 
-export async function getReceipt(id: string): Promise<OnchainReceipt | null> {
+export async function getReceipt(id: string, network: Network = DEFAULT_NETWORK): Promise<OnchainReceipt | null> {
   try {
-    const res = await client.getObject({ id, options: { showContent: true } });
+    const res = await clientFor(network).getObject({ id, options: { showContent: true } });
     const content = res.data?.content as { dataType?: string; fields?: Record<string, unknown> } | undefined;
     if (!content || content.dataType !== "moveObject" || !content.fields) return null;
     const f = content.fields;

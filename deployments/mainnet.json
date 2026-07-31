@@ -1,0 +1,37 @@
+{
+  "network": "mainnet",
+  "module": "carry::access",
+  "packageId": "0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61",
+  "accessPolicy": "0xc9bbb72830abc30fb995e57e3a752b9c79ffd8ff66f01357a42aeb95224be4b7",
+  "ownerCap": "0x62fb759b8a3f974584d14f8fc835024a3f880bb157b6b474129ca09d6a5fd39e",
+  "owner": "0xf0a0cf66c5469a9dbe682841365b61ae33e166400615a4666569696d0a5bf30f",
+  "publisher": "0x4965df4b0b99b3df55de3eef21c4ac14744eddf6a2d4e187018f76c7b93f906a",
+  "displayReceipt": "0x4155ae03a4742624844718f3dc7487f204dc6329950730a52f45106b414c6a0e",
+  "upgradeCap": "0x6732e79b164953043aa71fb7842816600afb9a9da1e08efdf26e0afa77dab601",
+  "clock": "0x6",
+  "publishDigest": "9oeU6kv8AWkCGQVQ2CALigfTYh9t7DgBUo5o27dieZrh",
+  "createDigest": "FijWHLi9Va77HjuTR3EPgnJmMWhmNuHw665bmJi4tqWa",
+  "note": "carry::access on Sui mainnet. The retrieval gate is live: aria is denied the `billing` namespace on-chain, so a receipt claiming it is caught by consensus. Verified independently against four public mainnet RPCs.",
+  "proofTxns": {
+    "setAccess_revoke_aria_billing": "6qNBNrb4TAYwNqdbRJi6cbjdESjqfLidyHiKhau1paB3",
+    "anchor_honest_all_authorized_true": "9eD248ZBnSrjvNzEwGfPcTNphJFiYA4ibqGjEAa6E7Ue",
+    "anchor_tampered_all_authorized_false": "3WLSNkCL3FBww5UuqaJCrpEkAj7Hvr1z46q6AAd3UDZt"
+  },
+  "exampleReceipts": {
+    "honest_all_authorized_true": "0x58e54937906a82d9faea4f542dba936fea3211aeed0dd42d4cb632d70a222d44",
+    "tampered_all_authorized_false": "0x7c51d9403e8a620fa07215b98f5a852bbd58e81b4fe229e17682c03b65bbe653",
+    "walrusBlob": "",
+    "note": "Anchored during a fleet-wide Walrus publisher outage, so these carry no Walrus blob: the hash-chain and authorization checks pass, the content-binding check does not. Re-anchor with blobs once Walrus writes recover."
+  },
+  "gateReads": {
+    "aria/billing": false,
+    "aria/health": true,
+    "verifiedVia": [
+      "https://rpc-mainnet.suiscan.xyz",
+      "https://sui-rpc.publicnode.com",
+      "https://mainnet.suiet.app",
+      "https://sui-mainnet.nodeinfra.com"
+    ]
+  },
+  "pending": "Receipts are anchored but not yet bound to Walrus blobs — the publisher fleet is mid-outage (writes time out; reads are healthy). Re-anchor with blobs once writes recover so the content-binding check passes."
+}
