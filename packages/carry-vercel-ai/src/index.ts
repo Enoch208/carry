@@ -2,6 +2,7 @@ import { wrapLanguageModel } from "ai";
 import { carryMiddleware, type CarryMiddlewareOptions } from "./middleware.js";
 
 export * from "./store.js";
+export { createGatewayStore, anchorReceipt, type GatewayOptions } from "./gateway.js";
 export {
   carryMiddleware,
   type CarryMiddlewareOptions,
@@ -13,7 +14,8 @@ export {
  *
  * ```ts
  * const model = withCarryMemory(openai("gpt-4o"), {
- *   store: createMemoryStore({ memories }),
+ *   // hosted Carry — the gate runs server-side against the on-chain policy
+ *   store: createGatewayStore({ baseUrl: "https://usecarry.xyz", apiKey: process.env.CARRY_API_KEY! }),
  *   agent: "aria",
  *   onReceipt: (r) => console.log(r.used, r.blockedNamespaces),
  * });

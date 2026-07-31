@@ -29,15 +29,18 @@ function matches(content: string, query: string): boolean {
 }
 
 /**
- * An in-memory Carry vault. Gate-before-generation: a namespace is allowed
- * unless the policy explicitly revokes it for the agent (default-allow).
+ * An in-memory Carry vault for local development and tests.
+ *
+ * Gate-before-generation, and default-deny: a namespace is unreadable until the
+ * policy explicitly grants it. An agent nobody configured therefore reads
+ * nothing, which is the same rule the on-chain gate enforces.
  */
 export function createMemoryStore(opts: {
   memories: CarryMemory[];
   policy?: Record<string, Record<string, boolean>>;
 }): CarryStore {
   const policy = opts.policy ?? {};
-  const isAllowed = (agent: string, ns: string) => policy[agent]?.[ns] !== false;
+  const isAllowed = (agent: string, ns: string) => policy[agent]?.[ns] === true;
   return {
     async recall(agent, query) {
       const relevant = opts.memories.filter((m) => matches(m.content, query));
