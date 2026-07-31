@@ -18,8 +18,13 @@
     "anchor_tampered_all_authorized_false": "HvWS6oUB75GPwUwCsixNkFZSR2aWnwv8RczgZWTqE9A2"
   },
   "exampleReceipts": {
-    "honest_all_authorized_true": "0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215",
-    "tampered_all_authorized_false": "0xe57c9af7240de356b171fb8f270cef677627cd8683695390cda1151d95df9199",
-    "verifyUrl": "https://usecarry.xyz/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215"
+    "honest_all_authorized_true": "0xd84de0fd4d5d4c76c43620f780a6c1c6f2ecab38d183a0e37ea5b62b424765f7",
+    "tampered_all_authorized_false": "0xdd5fcb9ec17c055f765d5c3fe39503526790a422295a10727df194da4e6dd0e1",
+    "verifyUrl": "https://usecarry.xyz/verify/0xd84de0fd4d5d4c76c43620f780a6c1c6f2ecab38d183a0e37ea5b62b424765f7",
+    "note": "Both pass all three checks. Earlier receipts 0x435148fd (honest) and 0xe57c9af7 (tampered) are still valid on-chain, but were anchored before the epochs fix and their Walrus blobs have expired, so content binding no longer passes for them.",
+    "expiredBlobReceipts": [
+      "0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215",
+      "0xe57c9af7240de356b171fb8f270cef677627cd8683695390cda1151d95df9199"
+    ]
   }
 }

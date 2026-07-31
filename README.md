@@ -96,6 +96,8 @@ mainnet transaction it produced, and a page you can check yourself — no screen
 | 2026-07-31 | **CLI and MCP are network-aware.** `CARRY_NETWORK` selects package, policy and aggregator; anchoring refuses to run when the Sui CLI's active env disagrees with the target chain. | [commit](https://github.com/Enoch208/carry/commit/4046f18) |
 | 2026-07-31 | **Two reliability fixes found while hardening.** A Walrus outage could hang `carry anchor` indefinitely and stop it ever reaching the chain; anchored receipts were stored for Walrus's default 5 epochs, which silently expires `/verify` links within days. | [outage fix](https://github.com/Enoch208/carry/commit/cdae85a) · [epochs fix](https://github.com/Enoch208/carry/commit/121b755) |
 
+| 2026-07-31 | **Live metrics read from chain, not self-reported.** Receipt totals come from each policy's own on-chain counter, the breakdown enumerates the Receipt objects it minted, and every Walrus blob is re-fetched to confirm it still resolves. | [metrics ↗](https://usecarry.xyz/metrics) |
+
 Both networks stay live — every package ID and proof transaction is in [`deployments/`](deployments).
 
 ---
