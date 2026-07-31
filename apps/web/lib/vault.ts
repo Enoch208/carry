@@ -2,7 +2,11 @@ import { SuiGrpcClient } from "@mysten/sui/grpc";
 import { blake2b256Hex, canonicalBytes, toHex, fromHex } from "@/lib/blake";
 import { Transaction } from "@mysten/sui/transactions";
 import { anchorSigner } from "@/lib/sui";
-import { DEFAULT_NETWORK, netCfg, type Network } from "@/lib/networks";
+import { DEFAULT_NETWORK, NETWORKS, netCfg, type Network } from "@/lib/networks";
+
+const ALL_AGGREGATORS = [
+  ...new Set([process.env.WALRUS_AGGREGATOR, ...Object.values(NETWORKS).map((n) => n.walrusAggregator)]),
+].filter(Boolean) as string[];
 
 export type ManifestEntry = { memoryId: string; namespace: string; walrusRef: string };
 
@@ -69,6 +73,22 @@ async function fetchText(url: string): Promise<string | null> {
 }
 
 /**
+ * A blob written with one publisher can be cited by a vault on the other
+ * network, and blob ids are content-addressed, so the aggregator that answers
+ * does not change what the bytes are. Try the expected one, then the rest.
+ */
+async function fetchBlob(preferred: string, blobId: string): Promise<string | null> {
+  const seen = new Set<string>();
+  for (const agg of [preferred, ...ALL_AGGREGATORS]) {
+    if (!agg || seen.has(agg)) continue;
+    seen.add(agg);
+    const body = await fetchText(`${agg}/v1/blobs/${blobId}`);
+    if (body !== null) return body;
+  }
+  return null;
+}
+
+/**
  * Rebuild the vault from chain and Walrus alone — the wallet owns the vault, the
  * vault names the manifest and its digest, and the manifest names the memory
  * blobs. Nothing here reads local state, which is the point: this is what a
@@ -99,7 +119,7 @@ export async function recoverVault(network: Network = DEFAULT_NETWORK): Promise<
       manifestDigestHex,
     };
 
-    const raw = await fetchText(`${cfg.walrusAggregator}/v1/blobs/${manifestBlob}`);
+    const raw = await fetchBlob(cfg.walrusAggregator, manifestBlob);
     if (!raw) return { ...found, error: "manifest blob did not resolve" };
 
     let manifest: Manifest;
@@ -117,7 +137,7 @@ export async function recoverVault(network: Network = DEFAULT_NETWORK): Promise<
 
     const memories = await Promise.all(
       (manifest.memories ?? []).map(async (m) => {
-        const body = m.walrusRef ? await fetchText(`${memoryAggregator}/v1/blobs/${m.walrusRef}`) : null;
+        const body = m.walrusRef ? await fetchBlob(memoryAggregator, m.walrusRef) : null;
         let content: string | null = null;
         if (body) {
           try {
@@ -160,7 +180,7 @@ export async function publishManifest(
     schema: "carry.vault.manifest/1",
     policy: cfg.accessPolicy,
     memoryNetwork: network,
-    memoryAggregator: cfg.walrusAggregator,
+    memoryAggregator: process.env.WALRUS_AGGREGATOR || cfg.walrusAggregator,
     createdAt: new Date(0).toISOString(),
     memories: entries,
   };
