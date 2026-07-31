@@ -44,8 +44,8 @@ const state = load();
 export const backend = () => (live ? `Walrus ${network}` : "mock");
 export const storePath = () => STORE_PATH;
 
-// Default-allow: a namespace is accessible unless it has been explicitly revoked.
-export const isAllowed = (ns: string) => state.policy[ns] !== false;
+// Default-deny: a namespace is unreadable until it is explicitly granted.
+export const isAllowed = (ns: string) => state.policy[ns] === true;
 
 function matches(content: string, query: string): boolean {
   const q = query.trim().toLowerCase();

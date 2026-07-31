@@ -8,7 +8,9 @@ use sui::hash;
 use std::string::{Self, String};
 
 #[test]
-fun gate_defaults_allow_then_revokes() {
+/// Default-deny: nothing is readable until it is explicitly granted, and a
+/// revoke takes it away again.
+fun gate_denies_by_default_and_honours_grants() {
     let owner = @0xA;
     let mut sc = ts::begin(owner);
 
@@ -22,19 +24,24 @@ fun gate_defaults_allow_then_revokes() {
     let health = string::utf8(b"health");
     let diet = string::utf8(b"diet");
 
-    // default-allow
-    assert!(access::is_allowed(&policy, agent, health), 0);
+    // nothing is granted yet, so nothing is readable
+    assert!(!access::is_allowed(&policy, agent, health), 0);
 
-    // revoke health
-    access::set_access(&cap, &mut policy, agent, health, false);
-    assert!(!access::is_allowed(&policy, agent, health), 1);
-
-    // a different namespace stays allowed
-    assert!(access::is_allowed(&policy, agent, diet), 2);
-
-    // re-grant
+    // an explicit grant opens exactly one namespace
     access::set_access(&cap, &mut policy, agent, health, true);
-    assert!(access::is_allowed(&policy, agent, health), 3);
+    assert!(access::is_allowed(&policy, agent, health), 1);
+    assert!(!access::is_allowed(&policy, agent, diet), 2);
+
+    // revoking closes it again
+    access::set_access(&cap, &mut policy, agent, health, false);
+    assert!(!access::is_allowed(&policy, agent, health), 3);
+
+    // an agent nobody configured has no access to a granted namespace
+    access::set_access(&cap, &mut policy, agent, diet, true);
+    assert!(!access::is_allowed(&policy, string::utf8(b"stranger"), diet), 4);
+
+    // and a namespace nobody thought about stays closed for a known agent
+    assert!(!access::is_allowed(&policy, agent, string::utf8(b"payroll")), 5);
 
     sc.return_to_sender(cap);
     ts::return_shared(policy);
@@ -63,7 +70,8 @@ fun anchor_mints_receipt_recomputes_and_chains() {
     let clock = clock::create_for_testing(sc.ctx());
 
     let agent = string::utf8(b"aria");
-    // aria is denied `billing` on-chain
+    // aria is granted `health` and denied `billing` on-chain
+    access::set_access(&cap, &mut policy, agent, string::utf8(b"health"), true);
     access::set_access(&cap, &mut policy, agent, string::utf8(b"billing"), false);
 
     let v = access::policy_version(&policy);
@@ -120,17 +128,17 @@ fun revocation_bumps_version_but_noops_do_not() {
 
     let v0 = access::policy_version(&policy);
 
-    // granting what is already allowed by default changes nothing
+    // granting an absent (denied) namespace really does widen access
     access::set_access(&cap, &mut policy, agent, billing, true);
-    assert!(access::policy_version(&policy) == v0, 0);
+    assert!(access::policy_version(&policy) == v0 + 1, 0);
 
-    // revoking is a real change
+    // revoking it again is another real change
     access::set_access(&cap, &mut policy, agent, billing, false);
-    assert!(access::policy_version(&policy) == v0 + 1, 1);
+    assert!(access::policy_version(&policy) == v0 + 2, 1);
 
     // repeating the revoke is not
     access::set_access(&cap, &mut policy, agent, billing, false);
-    assert!(access::policy_version(&policy) == v0 + 1, 2);
+    assert!(access::policy_version(&policy) == v0 + 2, 2);
 
     sc.return_to_sender(cap);
     ts::return_shared(policy);
@@ -152,10 +160,11 @@ fun revoke_during_generation_rejects_the_receipt() {
     let clock = clock::create_for_testing(sc.ctx());
     let agent = string::utf8(b"aria");
 
-    // the version retrieval saw
+    // health is granted, and retrieval reads the policy at this version
+    access::set_access(&cap, &mut policy, agent, string::utf8(b"health"), true);
     let stale = access::policy_version(&policy);
-    // ... then access is revoked mid-generation
-    access::set_access(&cap, &mut policy, agent, string::utf8(b"billing"), false);
+    // ... then health is revoked while the answer is still being generated
+    access::set_access(&cap, &mut policy, agent, string::utf8(b"health"), false);
 
     access::anchor_receipt(
         &mut policy, string::utf8(b"ans"), agent,
@@ -176,8 +185,10 @@ fun replaying_a_nonce_is_rejected() {
     sc.next_tx(owner);
 
     let mut policy = sc.take_shared<AccessPolicy>();
+    let cap = sc.take_from_sender<OwnerCap>();
     let clock = clock::create_for_testing(sc.ctx());
     let agent = string::utf8(b"aria");
+    access::set_access(&cap, &mut policy, agent, string::utf8(b"health"), true);
     let v = access::policy_version(&policy);
     let nonce = string::utf8(b"same-nonce");
 

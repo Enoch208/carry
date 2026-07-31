@@ -16,8 +16,8 @@ const NETWORKS = {
     publisher: "https://publisher.walrus-testnet.walrus.space",
   },
   mainnet: {
-    packageId: "0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61",
-    accessPolicy: "0xc9bbb72830abc30fb995e57e3a752b9c79ffd8ff66f01357a42aeb95224be4b7",
+    packageId: "0xeaf4e6e4e96e4f50dfcf2f4beebe3bacb766ad6cbf352b0982bd9631884032d8",
+    accessPolicy: "0x53e6e9f02cce2b106fb0e1e17280e7a0c94ba8ebb0b0fadf09e886cfd9b1a288",
     aggregator: "https://aggregator.walrus-mainnet.walrus.space",
     publisher: "",
   },
@@ -63,7 +63,8 @@ const load = () => {
   catch { return { memories: [], policy: {}, seq: 0, lastReceipt: null }; }
 };
 const save = (s) => { mkdirSync(dirname(STORE_PATH), { recursive: true }); writeFileSync(STORE_PATH, JSON.stringify(s, null, 2)); };
-const isAllowed = (s, ns) => s.policy[ns] !== false;
+// Default-deny: a namespace is unreadable until it is explicitly granted.
+const isAllowed = (s, ns) => s.policy[ns] === true;
 const shortRef = (r) => (r && r.length > 16 ? `${r.slice(0, 8)}…${r.slice(-6)}` : r || "");
 
 // ── walrus ────────────────────────────────────────────────────────────────
@@ -102,6 +103,25 @@ function suiCall(args) {
   }
   throw new Error("Sui CLI not found — install it for `--onchain`");
 }
+function deepFind(o, key) {
+  if (o && typeof o === "object") {
+    if (key in o) return o[key];
+    for (const v of Object.values(o)) {
+      const r = deepFind(v, key);
+      if (r !== undefined && r !== null) return r;
+    }
+  }
+  return undefined;
+}
+
+/// The chain rejects a receipt that cites a stale policy version, so read the
+/// live one at anchor time rather than assuming the gate has not moved.
+function livePolicyVersion() {
+  const v = deepFind(JSON.parse(suiCall(["client", "object", ACCESS_POLICY, "--json"])), "policy_version");
+  if (v === undefined) throw new Error("could not read policy_version — is the policy id correct for this network?");
+  return String(v);
+}
+
 function anchorOnChain(receipt, claim, walrusBlob) {
   // `sui client call` runs against whichever env is active, so a mismatch would
   // anchor against the wrong chain's package and fail obscurely.
@@ -112,9 +132,12 @@ function anchorOnChain(receipt, claim, walrusBlob) {
   const blocked = receipt.blockedNamespaces || [];
   const answerId = receipt.answerId || `ans-${Buffer.from(receipt.query || "q").toString("hex").slice(0, 10)}`;
   const digest = "0x" + digestHexOf(receipt);
+  const nonce = `${answerId}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const expiresAtMs = String(Date.now() + 10 * 60 * 1000);
   const out = suiCall([
     "client", "call", "--package", PACKAGE_ID, "--module", "access", "--function", "anchor_receipt",
-    "--args", ACCESS_POLICY, answerId, "aria", JSON.stringify(used), JSON.stringify(blocked), digest, walrusBlob, "0x6",
+    "--args", ACCESS_POLICY, answerId, "aria", JSON.stringify(used), JSON.stringify(blocked), digest, walrusBlob,
+    livePolicyVersion(), nonce, expiresAtMs, "0x6",
     "--gas-budget", "100000000", "--json",
   ]);
   const d = JSON.parse(out);
@@ -221,6 +244,7 @@ async function main() {
       process.stdout.write(dim("  storing on Walrus… "));
       const walrusRef = await walrusTryStore({ namespace: ns, content: text, createdAt: new Date().toISOString() });
       s.memories.push({ memoryId: `m${++s.seq}`, namespace: ns, content: text, walrusRef, createdAt: new Date().toISOString() });
+      if (s.policy[ns] === undefined) s.policy[ns] = true;
       save(s);
       console.log(walrusRef ? green("done") : red("publisher unreachable"));
       console.log("  " + green("●") + " " + cyan(ns.padEnd(9)) + white(text));
@@ -308,7 +332,10 @@ async function main() {
     }
     case "seed": {
       s.memories = SEED.map((m, i) => ({ memoryId: `m${i + 1}`, ...m, createdAt: new Date(0).toISOString() }));
-      s.seq = SEED.length; s.policy = {}; s.lastReceipt = null; save(s);
+      s.seq = SEED.length;
+      s.policy = {};
+      for (const m of s.memories) s.policy[m.namespace] = true;
+      s.lastReceipt = null; save(s);
       console.log("  " + green(ok) + " seeded " + white(`${SEED.length} memories`) + dim(" (health, diet) · real Walrus blobs"));
       console.log("  " + dim("try: ") + white(`carry recall "am I allergic to anything?"`));
       break;

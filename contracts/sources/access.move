@@ -46,7 +46,7 @@ public struct OwnerCap has key, store {
 public struct AccessPolicy has key {
     id: UID,
     owner: address,
-    /// key = `agent::namespace`, value = allowed. Absent key = allowed (default-allow).
+    /// key = `agent::namespace`, value = allowed. Absent key = denied (default-deny).
     grants: Table<String, bool>,
     /// Number of receipts anchored against this policy (the next `seq`).
     receipt_count: u64,
@@ -187,8 +187,8 @@ public fun set_access(
         differs
     } else {
         policy.grants.add(k, allowed);
-        // absent means allowed, so recording an allow changes nothing
-        allowed == false
+        // absent means denied, so a grant is a real change and a deny is not
+        allowed
     };
     if (changed) {
         policy.policy_version = policy.policy_version + 1;
@@ -202,10 +202,14 @@ public fun set_access(
     });
 }
 
-/// True unless the namespace was explicitly revoked for this agent.
+/// True only where the agent was explicitly granted the namespace.
+///
+/// Default-deny is the whole point: an agent nobody has configured, or a
+/// namespace nobody thought about, must resolve to no access. Anything else
+/// means a typo or a new namespace silently widens what a model can read.
 public fun is_allowed(policy: &AccessPolicy, agent: String, namespace: String): bool {
     let k = gkey(&agent, &namespace);
-    if (policy.grants.contains(k)) { *policy.grants.borrow(k) } else { true }
+    if (policy.grants.contains(k)) { *policy.grants.borrow(k) } else { false }
 }
 
 /// Anchor an Answer Receipt: reject it if the policy moved, the nonce was already
