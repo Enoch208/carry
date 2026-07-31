@@ -27,3 +27,4 @@ contracts/build/
 
 # Remotion render output
 video/out/
+.env*
