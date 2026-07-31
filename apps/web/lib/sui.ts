@@ -1,12 +1,10 @@
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
+import { randomUUID } from "node:crypto";
 import { SuiGrpcClient } from "@mysten/sui/grpc";
 import { Transaction } from "@mysten/sui/transactions";
+import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { bcs } from "@mysten/sui/bcs";
-import { toHex } from "@/lib/blake";
+import { toHex, fromHex } from "@/lib/blake";
 import { DEFAULT_NETWORK, netCfg, type Network } from "@/lib/networks";
-
-const pexec = promisify(execFile);
 
 const CLOCK = "0x6";
 const ZERO = "0x0000000000000000000000000000000000000000000000000000000000000000";
@@ -25,7 +23,7 @@ function clientFor(network: Network): SuiGrpcClient {
 export const suiscanTx = (d: string, network: Network = DEFAULT_NETWORK) => `${netCfg(network).suiscan}/tx/${d}`;
 export const suiscanObject = (id: string, network: Network = DEFAULT_NETWORK) => `${netCfg(network).suiscan}/object/${id}`;
 
-// ── anchoring (write, server-side via the Sui CLI on its active env) ─────────
+// ── anchoring (write, SDK-native with a server-held signer) ──────────────────
 
 export type OnchainAnchor = {
   txDigest: string;
@@ -35,19 +33,15 @@ export type OnchainAnchor = {
   verifyPath: string;
 };
 
-async function runSui(args: string[]): Promise<string> {
-  const bins = [process.env.SUI_BIN, "sui", "/opt/homebrew/bin/sui"].filter(Boolean) as string[];
-  let lastErr: unknown;
-  for (const bin of bins) {
-    try {
-      const { stdout } = await pexec(bin, args, { maxBuffer: 32 * 1024 * 1024, timeout: 60000 });
-      return stdout;
-    } catch (e) {
-      lastErr = e;
-      if ((e as { code?: string }).code !== "ENOENT") throw e;
-    }
-  }
-  throw lastErr ?? new Error("sui CLI not found");
+/**
+ * The anchoring key holds no OwnerCap on purpose: `anchor_receipt` is callable
+ * by anyone, so this signer can append proofs but can never change the gate.
+ * Compromising it cannot widen what an agent may read.
+ */
+function anchorSigner(): Ed25519Keypair {
+  const key = process.env.CARRY_SIGNER_KEY;
+  if (!key) throw new Error("CARRY_SIGNER_KEY is not set — on-chain anchoring needs a server signer");
+  return Ed25519Keypair.fromSecretKey(key.trim());
 }
 
 export async function anchorOnChain(
@@ -55,30 +49,58 @@ export async function anchorOnChain(
   network: Network = DEFAULT_NETWORK
 ): Promise<OnchainAnchor> {
   const cfg = netCfg(network);
-  const stdout = await runSui([
-    "client", "call",
-    "--package", cfg.packageId, "--module", "access", "--function", "anchor_receipt",
-    "--args", cfg.accessPolicy, args.answerId, args.agent,
-    JSON.stringify(args.used), JSON.stringify(args.blocked),
-    "0x" + args.digestHex.replace(/^0x/, ""), args.walrusBlob, CLOCK,
-    "--gas-budget", "100000000", "--json",
-  ]);
-  const parsed = JSON.parse(stdout) as {
+  const client = clientFor(network);
+  const signer = anchorSigner();
+
+  const policyVersion = await readPolicyVersion(cfg.accessPolicy, network);
+  if (policyVersion === null) throw new Error("could not read the live policy version");
+
+  const nonce = `${args.answerId}-${Date.now().toString(36)}-${randomUUID().slice(0, 8)}`;
+  const expiresAtMs = BigInt(Date.now() + 10 * 60 * 1000);
+
+  const tx = new Transaction();
+  tx.moveCall({
+    target: `${cfg.packageId}::access::anchor_receipt`,
+    arguments: [
+      tx.object(cfg.accessPolicy),
+      tx.pure.string(args.answerId),
+      tx.pure.string(args.agent),
+      tx.pure.vector("string", args.used),
+      tx.pure.vector("string", args.blocked),
+      tx.pure.vector("u8", Array.from(fromHex(args.digestHex))),
+      tx.pure.string(args.walrusBlob),
+      tx.pure.u64(BigInt(policyVersion)),
+      tx.pure.string(nonce),
+      tx.pure.u64(expiresAtMs),
+      tx.object(CLOCK),
+    ],
+  });
+
+  const res = await client.signAndExecuteTransaction({
+    transaction: tx,
+    signer,
+    include: { effects: true, events: true, objectTypes: true },
+  });
+
+  if (res.$kind !== "Transaction") {
+    const err = (res as { FailedTransaction?: { status?: { error?: { message?: string } } } }).FailedTransaction;
+    throw new Error(`anchor_receipt rejected on-chain: ${err?.status?.error?.message ?? "unknown error"}`);
+  }
+
+  const t = res.Transaction as unknown as {
     digest?: string;
-    events?: { parsedJson?: { all_authorized?: boolean } }[];
-    objectChanges?: { type?: string; objectType?: string; objectId?: string }[];
+    events?: { json?: Record<string, unknown> }[];
   };
-  const event = parsed.events?.find((e) => e.parsedJson && "all_authorized" in e.parsedJson);
-  const created = parsed.objectChanges?.find(
-    (c) => c.type === "created" && (c.objectType ?? "").endsWith("::access::Receipt")
-  );
-  const receiptId = created?.objectId ?? "";
+  const digest = t.digest ?? "";
+  const event = (t.events ?? []).find((e) => e.json && "all_authorized" in e.json);
+  const receiptId = String(event?.json?.receipt ?? "");
   const verifyQuery = network === "testnet" ? "" : `?network=${network}`;
+
   return {
-    txDigest: parsed.digest ?? "",
+    txDigest: digest,
     receiptId,
-    allAuthorized: event?.parsedJson?.all_authorized ?? false,
-    suiscanUrl: suiscanTx(parsed.digest ?? "", network),
+    allAuthorized: Boolean(event?.json?.all_authorized),
+    suiscanUrl: suiscanTx(digest, network),
     verifyPath: receiptId ? `/verify/${receiptId}${verifyQuery}` : "",
   };
 }
