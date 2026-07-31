@@ -45,7 +45,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-dvh w-56 flex-col border-r border-dashed border-white/20 bg-[#050505]">
+    <aside className="flex h-dvh w-56 shrink-0 flex-col border-r border-dashed border-white/20 bg-[#050505]">
       <div aria-label="Carry" className="flex items-center gap-1.5 border-b border-dashed border-white/20 px-5 py-5">
         <Image
           src="/carry_mark.png"
@@ -59,7 +59,7 @@ export function Sidebar() {
         </span>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-5 px-3 py-4">
+      <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-4">
         {navSections.map((section) => (
           <div key={section.label} className="flex flex-col gap-1">
             <p className="px-3 pb-1 text-[10px] uppercase tracking-[0.16em] text-gray-600">{section.label}</p>
