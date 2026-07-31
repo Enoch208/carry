@@ -82,18 +82,26 @@ export async function verifyReceipt(id: string, network: Network = DEFAULT_NETWO
     detail: "is_allowed(agent, namespace) for every used namespace matches all_authorized",
   });
 
-  // 4. the policy has not moved since this verdict was computed. Receipts minted
-  // before policy versioning existed have nothing to compare, so they say so
-  // rather than claiming a guarantee they were never given.
+  // 4. the receipt was anchored against a policy version the chain accepted.
+  //
+  // `anchor_receipt` refuses a receipt whose cited version is not the current
+  // one, so a receipt existing at all proves its version was live when it was
+  // written. A later grant or revoke moves the policy forward and must not
+  // retroactively invalidate proofs — an audit trail that goes red every time
+  // permissions change would be useless. What cannot happen is a receipt citing
+  // a version the policy has never reached.
   if (receipt.policyVersion !== null) {
     const current = await readPolicyVersion(receipt.policy, network, receipt.packageId);
+    const moved = current !== null && current > receipt.policyVersion;
     checks.push({
-      label: "Policy version current",
-      ok: current !== null && current === receipt.policyVersion,
+      label: "Policy version accepted on-chain",
+      ok: current !== null && receipt.policyVersion <= current,
       detail:
         current === null
           ? "could not read the live policy version"
-          : `receipt cites v${receipt.policyVersion}, policy is at v${current}`,
+          : moved
+            ? `anchored at v${receipt.policyVersion}; the policy has since moved to v${current}`
+            : `anchored at v${receipt.policyVersion}, still the live policy version`,
     });
   }
 
