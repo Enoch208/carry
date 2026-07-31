@@ -11,12 +11,12 @@ const VOICE = "UgBBYS2sOqTuMpoF3BR0";
 
 // Confident and factual: this is research we ran and hardening we shipped.
 const LINES = [
-  ["uv1", "Carry is proof-carrying memory for AI agents. It is now live on Sui mainnet."],
-  ["uv2", "We built an adversarial lab to measure what permissive memory access really costs."],
-  ["uv3", "Against a permissive default, eight of nine attacks reached memory they should never have touched."],
-  ["uv4", "Carry's gate is default-deny, enforced on chain. The same nine attacks: zero."],
-  ["uv5", "We also shipped sealed receipts, a portable vault, and migrated to gRPC the day legacy RPC retired."],
-  ["uv6", "Every claim is one click from proof. No wallet required."],
+  ["uv1", "Your AI assistant remembers everything you tell it. But can it prove which memories it used?"],
+  ["uv2", "Carry is proof-carrying memory for AI agents. A major update is now live on Sui mainnet."],
+  ["uv3", "The gate runs before generation, so restricted memory never enters the model's context."],
+  ["uv4", "An adversarial lab tested nine attack classes. A permissive baseline let eight through. Carry: zero."],
+  ["uv5", "Sealed receipts prove what an answer used without revealing it. And a refusal is proof too, recorded by consensus."],
+  ["uv6", "Everything is publicly checkable. No wallet required."],
 ];
 
 for (const [name, text] of LINES) {

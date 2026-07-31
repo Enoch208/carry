@@ -10,20 +10,20 @@ import {
   useVideoConfig,
 } from "remotion";
 import { C, FONT, MONO } from "../theme";
-import { Stage, Eyebrow, Check } from "../bits";
+import { Stage, Eyebrow } from "../bits";
 
-// 40 s at 30 fps. Scene bounds are set by the narration, so a line never runs
+// 42 s at 30 fps. Scene bounds are set by the narration, so a line never runs
 // past the beat it belongs to.
 export const UPDATE = {
   fps: 30,
-  total: 1200,
-  intro: { from: 0, to: 190 },
-  lab: { from: 190, to: 340 },
-  measured: { from: 340, to: 510 },
-  gate: { from: 510, to: 700 },
-  shipped: { from: 700, to: 960 },
-  verify: { from: 960, to: 1200 },
-  vo: { uv1: 20, uv2: 200, uv3: 350, uv4: 530, uv5: 730, uv6: 990 },
+  total: 1260,
+  hook: { from: 0, to: 180 },
+  mainnet: { from: 180, to: 370 },
+  gate: { from: 370, to: 520 },
+  lab: { from: 520, to: 770 },
+  proofs: { from: 770, to: 1020 },
+  verify: { from: 1020, to: 1260 },
+  vo: { uv1: 15, uv2: 190, uv3: 380, uv4: 535, uv5: 785, uv6: 1045 },
 };
 
 const ease = (frame: number, fps: number, delay = 0) =>
@@ -77,39 +77,64 @@ const Sub: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </div>
 );
 
-/** 01 — what Carry is, and where it now runs. */
-const Intro: React.FC = () => (
+/** 01 — the question nobody can answer today. */
+const Hook: React.FC = () => (
+  <Centered>
+    <Rise>
+      <Headline>Your AI remembers everything you tell it.</Headline>
+    </Rise>
+    <Rise delay={30}>
+      <Sub>But can it prove which memories it used — and what it was never allowed to touch?</Sub>
+    </Rise>
+  </Centered>
+);
+
+/** 02 — what Carry is, and that it is deployed. */
+const Mainnet: React.FC = () => (
   <Centered>
     <Rise>
       <Eyebrow color={C.accent}>Proof-carrying memory for AI agents</Eyebrow>
     </Rise>
     <Rise delay={12}>
-      <Headline>Carry is live on Sui mainnet.</Headline>
+      <Headline>Live on Sui mainnet.</Headline>
     </Rise>
     <Rise delay={34}>
-      <Sub>Memory an agent can use only where it is allowed — and prove it on every answer.</Sub>
+      <div
+        style={{
+          fontFamily: MONO,
+          fontSize: 22,
+          color: C.muted,
+          padding: "16px 26px",
+          border: `1px solid ${C.border}`,
+          borderRadius: 12,
+          background: C.surface,
+        }}
+      >
+        carry::access · 0xeaf4e6e4…4032d8
+      </div>
     </Rise>
   </Centered>
 );
 
-/** 02 — the research, stated as research. */
-const Lab: React.FC = () => (
+/** 03 — the rule that makes a receipt worth anything. */
+const Gate: React.FC = () => (
   <Centered>
     <Rise>
-      <Eyebrow>Adversarial lab</Eyebrow>
+      <Eyebrow>Gate before generation</Eyebrow>
     </Rise>
     <Rise delay={12}>
-      <Headline size={76}>We measured what permissive memory access costs.</Headline>
+      <Headline size={76}>Restricted memory never enters the model&rsquo;s context.</Headline>
     </Rise>
     <Rise delay={34}>
-      <Sub>Nine attacks: unknown agents, undefined namespaces, name guessing, separator injection.</Sub>
+      <Sub>Not filtered after the answer. Enforced at retrieval, on-chain.</Sub>
     </Rise>
   </Centered>
 );
 
-const Score: React.FC<{ value: string; label: string; color: string; glow: string }> = ({
+const Score: React.FC<{ value: string; label: string; sub: string; color: string; glow: string }> = ({
   value,
   label,
+  sub,
   color,
   glow,
 }) => (
@@ -118,91 +143,85 @@ const Score: React.FC<{ value: string; label: string; color: string; glow: strin
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      gap: 14,
-      padding: "48px 76px",
+      gap: 10,
+      padding: "40px 68px",
       border: `1px solid ${color}55`,
       borderRadius: 20,
       background: glow,
+      minWidth: 420,
     }}
   >
-    <div style={{ fontFamily: MONO, fontSize: 132, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
-    <div style={{ fontFamily: FONT, fontSize: 26, color: C.muted }}>{label}</div>
+    <div style={{ fontFamily: MONO, fontSize: 20, letterSpacing: "0.16em", color: C.faint }}>{label}</div>
+    <div style={{ fontFamily: MONO, fontSize: 118, fontWeight: 700, color, lineHeight: 1.05 }}>{value}</div>
+    <div style={{ fontFamily: FONT, fontSize: 24, color: C.muted }}>{sub}</div>
   </div>
 );
 
-/** 03 — the finding. */
-const Measured: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const count = Math.round(interpolate(ease(frame, fps, 26), [0, 1], [0, 8]));
-  return (
-    <Centered>
-      <Rise>
-        <Eyebrow color={C.danger}>Against a permissive default</Eyebrow>
-      </Rise>
-      <Rise delay={12}>
+/** 04 — the benchmark, side by side. */
+const Lab: React.FC = () => (
+  <Centered>
+    <Rise>
+      <Eyebrow>Adversarial lab · nine attack classes</Eyebrow>
+    </Rise>
+    <div style={{ display: "flex", gap: 26, marginTop: 6 }}>
+      <Rise delay={14}>
         <Score
-          value={`${count}/9`}
-          label="reached memory they should never have touched"
+          label="PERMISSIVE BASELINE"
+          value="8/9"
+          sub="reached memory"
           color={C.danger}
           glow="rgba(248,113,113,0.07)"
         />
       </Rise>
-    </Centered>
-  );
-};
-
-/** 04 — the design decision, and the same measurement. */
-const Gate: React.FC = () => (
-  <Centered>
-    <Rise>
-      <Eyebrow color={C.success}>Carry&rsquo;s gate is default-deny, enforced on chain</Eyebrow>
-    </Rise>
-    <Rise delay={12}>
-      <Score value="0/9" label="the same nine attacks" color={C.success} glow="rgba(52,211,153,0.07)" />
-    </Rise>
-    <Rise delay={64}>
-      <Sub>Both contracts are deployed, so you can run the comparison yourself.</Sub>
+      <Rise delay={44}>
+        <Score label="CARRY" value="0/9" sub="default-deny" color={C.success} glow="rgba(52,211,153,0.07)" />
+      </Rise>
+    </div>
+    <Rise delay={86}>
+      <Sub>Run it yourself — it executes against mainnet on every page load.</Sub>
     </Rise>
   </Centered>
 );
 
-const Row: React.FC<{ delay: number; children: React.ReactNode }> = ({ delay, children }) => (
+const Card: React.FC<{ delay: number; title: string; body: string }> = ({ delay, title, body }) => (
   <Rise delay={delay}>
     <div
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 20,
-        padding: "22px 30px",
+        width: 1100,
+        padding: "26px 32px",
         border: `1px solid ${C.border}`,
-        borderRadius: 14,
+        borderRadius: 16,
         background: C.surface,
-        width: 1120,
       }}
     >
-      <Check size={26} />
-      <span style={{ fontFamily: FONT, fontSize: 30, color: C.fg, fontWeight: 500 }}>{children}</span>
+      <p style={{ fontFamily: FONT, fontSize: 32, fontWeight: 600, color: C.fg, margin: 0 }}>{title}</p>
+      <p style={{ fontFamily: FONT, fontSize: 25, color: C.muted, margin: "8px 0 0" }}>{body}</p>
     </div>
   </Rise>
 );
 
-/** 05 — the rest of what shipped. */
-const Shipped: React.FC = () => (
+/** 05 — the two proofs that are hard to argue with. */
+const Proofs: React.FC = () => (
   <Centered>
     <Rise>
-      <Eyebrow>Shipped</Eyebrow>
+      <Eyebrow>Two things a receipt can prove</Eyebrow>
     </Rise>
-    <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
-      <Row delay={14}>Sealed receipts — verify an answer without revealing it</Row>
-      <Row delay={44}>Portable vault — memory rebuilt from chain and Walrus alone</Row>
-      <Row delay={74}>Policy versioning, single-use nonces, receipt expiry</Row>
-      <Row delay={104}>Migrated to gRPC the day legacy RPC retired</Row>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 6 }}>
+      <Card
+        delay={14}
+        title="Sealed receipts"
+        body="Prove what an answer used without revealing it — the public blob carries salted commitments, not your memories."
+      />
+      <Card
+        delay={52}
+        title="A refusal is proof too"
+        body="An agent claimed a namespace it was never granted. The receipt verifies — as an authentic record of the denial."
+      />
     </div>
   </Centered>
 );
 
-/** 06 — the ask. */
+/** 06 — the ask: go and check it. */
 const Verify: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -217,7 +236,7 @@ const Verify: React.FC = () => {
       </Rise>
       <Rise delay={34}>
         <div style={{ display: "flex", gap: 14, fontFamily: MONO, fontSize: 27, color: C.muted }}>
-          {["/lab", "/vault", "/metrics", "/enterprise"].map((p) => (
+          {["/lab", "/vault", "/metrics", "/console"].map((p) => (
             <span
               key={p}
               style={{ padding: "12px 22px", border: `1px solid ${C.border}`, borderRadius: 999, background: C.surface }}
@@ -266,7 +285,7 @@ const Beat: React.FC<{ span: { from: number; to: number }; children: React.React
 /** Narration sits well above the bed, which ducks under it and fades out clean. */
 const Track: React.FC = () => {
   const frame = useCurrentFrame();
-  const bed = interpolate(frame, [0, 40, 1120, 1200], [0, 0.16, 0.16, 0], {
+  const bed = interpolate(frame, [0, 40, 1180, 1260], [0, 0.16, 0.16, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -285,20 +304,20 @@ const Track: React.FC = () => {
 export const Update: React.FC = () => (
   <Stage>
     <Track />
-    <Beat span={UPDATE.intro}>
-      <Intro />
+    <Beat span={UPDATE.hook}>
+      <Hook />
     </Beat>
-    <Beat span={UPDATE.lab}>
-      <Lab />
-    </Beat>
-    <Beat span={UPDATE.measured}>
-      <Measured />
+    <Beat span={UPDATE.mainnet}>
+      <Mainnet />
     </Beat>
     <Beat span={UPDATE.gate}>
       <Gate />
     </Beat>
-    <Beat span={UPDATE.shipped}>
-      <Shipped />
+    <Beat span={UPDATE.lab}>
+      <Lab />
+    </Beat>
+    <Beat span={UPDATE.proofs}>
+      <Proofs />
     </Beat>
     <Beat span={UPDATE.verify}>
       <Verify />
