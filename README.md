@@ -80,9 +80,30 @@ carry anchor --onchain --claim billing       # → all_authorized: false — the
 
 ---
 
+## Built after Demo Day
+
+Everything below shipped after the hackathon demo. Each row links to the commit, the
+mainnet transaction it produced, and a page you can check yourself — no screenshots.
+
+| Date | Milestone | Evidence |
+| --- | --- | --- |
+| 2026-07-31 | **`carry::access` live on Sui mainnet.** The gate is no longer testnet-only. | [commit](https://github.com/Enoch208/carry/commit/fb30208) · [publish tx](https://suiscan.xyz/mainnet/tx/9oeU6kv8AWkCGQVQ2CALigfTYh9t7DgBUo5o27dieZrh) · [package](https://suiscan.xyz/mainnet/object/0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61) |
+| 2026-07-31 | **Policy created and the gate enforced on-chain** — `aria` revoked from `billing`, so a receipt claiming it is caught by consensus. | [create tx](https://suiscan.xyz/mainnet/tx/FijWHLi9Va77HjuTR3EPgnJmMWhmNuHw665bmJi4tqWa) · [revoke tx](https://suiscan.xyz/mainnet/tx/6qNBNrb4TAYwNqdbRJi6cbjdESjqfLidyHiKhau1paB3) |
+| 2026-07-31 | **Sui reads migrated to gRPC.** Public fullnodes retired legacy JSON-RPC on this date; reads now go to the canonical fullnodes instead of third-party mirrors still serving the dead protocol. | [commit](https://github.com/Enoch208/carry/commit/5074b3f) |
+| 2026-07-31 | **Walletless verifier is dual-network** — `?network=mainnet` resolves against mainnet, and an id is only honoured on a network where the package is actually deployed. | [commit](https://github.com/Enoch208/carry/commit/fb30208) · [verifier](https://usecarry.xyz/verify/0x70a997c909dbe0c0018e4de971a3d4a29287b788d9991de2964461ed2e713cdf?network=mainnet) |
+| 2026-07-31 | **Answer Receipt stored on Walrus mainnet** for 53 epochs (~2 years). Mainnet has no public publisher by design, so blobs are written with the `walrus` CLI paying WAL from the project wallet. | [blob ↗](https://aggregator.walrus-mainnet.walrus.space/v1/blobs/VftF9eLPMTYNfQ1zmsojrKVRhAQffftTBT2Kc1gWxTo) · [blob object](https://suiscan.xyz/mainnet/object/0x619d7b698e82a760d3aaa956e83db313cee8d7f91b251a789db72df1057c3bba) |
+| 2026-07-31 | **Mainnet proofs anchored — all three checks green.** One honest, one claiming the revoked namespace. The second verifies as an *authentic* receipt whose recorded verdict is a refusal. | [honest tx](https://suiscan.xyz/mainnet/tx/38dBeih1MQErs4iMDETzbsh9YoDf7gxECPW8HQ8jZWbR) · [blocked tx](https://suiscan.xyz/mainnet/tx/8NUwAKdPf7cBiuhxtzF7eBT285jdci392arZQ3MHp23R) · [verify ↗](https://usecarry.xyz/verify/0xe888f0e38ee1c8ab8b4bb917a6d5902356a9464fb73d5511ec5d16b2d1fd03b7?network=mainnet) |
+| 2026-07-31 | **CLI and MCP are network-aware.** `CARRY_NETWORK` selects package, policy and aggregator; anchoring refuses to run when the Sui CLI's active env disagrees with the target chain. | [commit](https://github.com/Enoch208/carry/commit/4046f18) |
+| 2026-07-31 | **Two reliability fixes found while hardening.** A Walrus outage could hang `carry anchor` indefinitely and stop it ever reaching the chain; anchored receipts were stored for Walrus's default 5 epochs, which silently expires `/verify` links within days. | [outage fix](https://github.com/Enoch208/carry/commit/cdae85a) · [epochs fix](https://github.com/Enoch208/carry/commit/121b755) |
+
+Both networks stay live — every package ID and proof transaction is in [`deployments/`](deployments).
+
+---
+
 ## Table of contents
 
 - [Proof — nothing here is a mockup](#proof--nothing-here-is-a-mockup)
+- [Built after Demo Day](#built-after-demo-day)
 - [The problem I set out to solve](#the-problem-i-set-out-to-solve)
 - [What I built](#what-i-built)
 - [One vault, every surface](#one-vault-every-surface)
