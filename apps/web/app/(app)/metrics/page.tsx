@@ -86,19 +86,15 @@ export default async function MetricsPage() {
   const blocked = metrics.reduce((n, m) => n + m.blocked, 0);
 
   return (
-    <div className="min-h-dvh bg-[#050505] px-6 py-10">
+    <div className="px-8 py-9">
       <div className="mx-auto w-full max-w-3xl">
         <header className="mb-8 flex items-center gap-3">
-          <Image src="/carry_mark.png" alt="" width={594} height={662} className="h-5 w-auto" />
           <div className="flex-1">
             <h1 className="text-[15px] font-semibold text-fg">Live metrics</h1>
             <p className="text-[12px] text-faint">
               read from Sui and Walrus on every request · nothing self-reported
             </p>
           </div>
-          <Link href="/chat-a" className="text-[12px] text-faint transition-colors hover:text-accent">
-            Carry ↗
-          </Link>
         </header>
 
         <div className="mb-6 grid grid-cols-2 gap-2">

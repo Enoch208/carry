@@ -81,10 +81,9 @@ export default async function ConsolePage({
   const v = await consoleView(network);
 
   return (
-    <div className="min-h-dvh bg-[#050505] px-6 py-10">
+    <div className="px-8 py-9">
       <div className="mx-auto w-full max-w-4xl">
         <header className="mb-8 flex items-center gap-3">
-          <Image src="/carry_mark.png" alt="" width={594} height={662} className="h-5 w-auto" />
           <div className="flex-1">
             <h1 className="text-[15px] font-semibold text-fg">Trust &amp; audit console</h1>
             <p className="text-[12px] text-faint">
@@ -97,9 +96,6 @@ export default async function ConsolePage({
           >
             API ↗
           </a>
-          <Link href="/chat-a" className="text-[12px] text-faint transition-colors hover:text-accent">
-            Carry ↗
-          </Link>
         </header>
 
         {v.error ? (
