@@ -10,6 +10,7 @@ const links = [
   { label: "The receipt", href: "#proof" },
   { label: "Features", href: "#features" },
   { label: "FAQ", href: "#faq" },
+  { label: "Docs", href: "https://docs.usecarry.xyz" },
 ];
 
 function Wordmark() {

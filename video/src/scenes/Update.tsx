@@ -236,7 +236,7 @@ const Verify: React.FC = () => {
       </Rise>
       <Rise delay={34}>
         <div style={{ display: "flex", gap: 14, fontFamily: MONO, fontSize: 27, color: C.muted }}>
-          {["/lab", "/vault", "/metrics", "/console"].map((p) => (
+          {["/lab", "/vault", "/console", "/metrics"].map((p) => (
             <span
               key={p}
               style={{ padding: "12px 22px", border: `1px solid ${C.border}`, borderRadius: 999, background: C.surface }}
@@ -249,7 +249,7 @@ const Verify: React.FC = () => {
       <Rise delay={58}>
         <div
           style={{
-            marginTop: 22,
+            marginTop: 18,
             fontFamily: FONT,
             fontSize: 62,
             fontWeight: 700,
@@ -259,6 +259,11 @@ const Verify: React.FC = () => {
           }}
         >
           usecarry.xyz
+        </div>
+      </Rise>
+      <Rise delay={74}>
+        <div style={{ fontFamily: MONO, fontSize: 24, color: C.faint, letterSpacing: "0.06em" }}>
+          docs.usecarry.xyz · npm i @usecarry/agents
         </div>
       </Rise>
     </Centered>

@@ -14,19 +14,19 @@ const columns = [
   {
     title: "Developers",
     links: [
+      { label: "Docs", href: "https://docs.usecarry.xyz" },
       { label: "GitHub", href: "https://github.com/Enoch208/carry" },
+      { label: "npm", href: "https://www.npmjs.com/package/@usecarry/agents" },
       { label: "Walrus", href: "https://www.walrus.xyz" },
-      { label: "Seal", href: "#" },
-      { label: "MemWal", href: "#" },
     ],
   },
   {
     title: "Project",
     links: [
       { label: "Sui Overflow", href: "https://sui.io" },
-      { label: "Roadmap", href: "#roadmap" },
-      { label: "FAQ", href: "#faq" },
-      { label: "Contact", href: "#faq" },
+      { label: "Verify a proof", href: "/verify/0x1d9f44e0b8599b199f3b313775a3a639e7d96f012d0dd01996a34c80816376b8?network=mainnet" },
+      { label: "Attack lab", href: "/lab?network=mainnet" },
+      { label: "Threat model", href: "https://github.com/Enoch208/carry/blob/main/docs/threat-model.md" },
     ],
   },
 ];
@@ -136,11 +136,11 @@ export function Footer() {
             Built for Sui Overflow 2026
           </div>
           <div className="flex items-center gap-6">
-            <a href="#" className="transition-colors hover:text-white">
-              Privacy
+            <a href="https://docs.usecarry.xyz" className="transition-colors hover:text-white">
+              Docs
             </a>
-            <a href="#" className="transition-colors hover:text-white">
-              Terms
+            <a href="https://github.com/Enoch208/carry/blob/main/LICENSE" className="transition-colors hover:text-white">
+              MIT licence
             </a>
             <span>© 2026 Carry</span>
           </div>
