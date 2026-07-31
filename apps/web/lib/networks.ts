@@ -24,10 +24,10 @@ export const NETWORKS: Record<Network, NetCfg> = {
     network: "mainnet",
     packageId:
       process.env.CARRY_MAINNET_PACKAGE_ID ||
-      "0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61",
+      "0x010719e5141bc53bc32c1e75acf39872d1ee535d2f2b8bcdb059e4ece13ad0a4",
     accessPolicy:
       process.env.CARRY_MAINNET_ACCESS_POLICY ||
-      "0xc9bbb72830abc30fb995e57e3a752b9c79ffd8ff66f01357a42aeb95224be4b7",
+      "0xf84eca67c85149ba18f581907dc5d95b9e3aa3b0e0cb3490c946e41de428a673",
     grpcUrl: process.env.SUI_MAINNET_GRPC_URL || "https://fullnode.mainnet.sui.io:443",
     suiscan: "https://suiscan.xyz/mainnet",
     walrusAggregator:

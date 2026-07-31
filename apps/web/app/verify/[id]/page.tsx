@@ -91,6 +91,9 @@ export default async function VerifyPage({
               </Row>
               <Row k="used namespaces">{receipt!.usedNamespaces.join(", ") || "—"}</Row>
               <Row k="blocked namespaces">{receipt!.blockedNamespaces.join(", ") || "—"}</Row>
+              {receipt!.policyVersion !== null ? (
+                <Row k="policy version">v{receipt!.policyVersion}</Row>
+              ) : null}
               <Row k="digest">{short(receipt!.digestHex)}</Row>
               <Row k="chain_digest">{short(receipt!.chainDigestHex)}</Row>
               <Row k="walrus blob">

@@ -89,12 +89,13 @@ export async function readIsAllowed(
   agent: string,
   namespace: string,
   policyId: string,
-  network: Network = DEFAULT_NETWORK
+  network: Network = DEFAULT_NETWORK,
+  packageId?: string
 ): Promise<boolean> {
   try {
     const tx = new Transaction();
     tx.moveCall({
-      target: `${netCfg(network).packageId}::access::is_allowed`,
+      target: `${packageId || netCfg(network).packageId}::access::is_allowed`,
       arguments: [tx.object(policyId), tx.pure.string(agent), tx.pure.string(namespace)],
     });
     tx.setSender(ZERO);
@@ -107,6 +108,21 @@ export async function readIsAllowed(
     return bcs.Bool.parse(Uint8Array.from(ret)) === true;
   } catch {
     return false;
+  }
+}
+
+/** The policy's live version — a receipt is only current while these agree. */
+export async function readPolicyVersion(
+  policyId: string,
+  network: Network = DEFAULT_NETWORK,
+  _packageId?: string
+): Promise<number | null> {
+  try {
+    const { object } = await clientFor(network).getObject({ objectId: policyId, include: { json: true } });
+    const v = (object?.json as Record<string, unknown> | undefined)?.policy_version;
+    return v == null ? null : Number(v);
+  } catch {
+    return null;
   }
 }
 
@@ -124,6 +140,12 @@ function u8ToHex(field: unknown): string {
 
 export type OnchainReceipt = {
   id: string;
+  /// The package this receipt was minted by — older receipts live in earlier
+  /// packages, and the verdict must be recomputed against their own gate.
+  packageId: string;
+  policyVersion: number | null;
+  nonce: string;
+  expiresAtMs: number;
   policy: string;
   seq: number;
   answerId: string;
@@ -140,11 +162,19 @@ export type OnchainReceipt = {
 
 export async function getReceipt(id: string, network: Network = DEFAULT_NETWORK): Promise<OnchainReceipt | null> {
   try {
-    const { object } = await clientFor(network).getObject({ objectId: id, include: { json: true } });
+    const { object } = await clientFor(network).getObject({
+      objectId: id,
+      include: { json: true, objectTypes: true },
+    });
     const f = object?.json as Record<string, unknown> | undefined;
     if (!f) return null;
+    const objectType = (object as { type?: string }).type ?? "";
     return {
       id,
+      packageId: objectType.includes("::") ? objectType.split("::")[0] : netCfg(network).packageId,
+      policyVersion: f.policy_version == null ? null : Number(f.policy_version),
+      nonce: f.nonce == null ? "" : String(f.nonce),
+      expiresAtMs: f.expires_at_ms == null ? 0 : Number(f.expires_at_ms),
       policy: String(f.policy),
       seq: Number(f.seq),
       answerId: String(f.answer_id),
