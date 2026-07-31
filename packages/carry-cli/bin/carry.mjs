@@ -6,13 +6,33 @@ import { homedir } from "node:os";
 import { blake2b } from "@noble/hashes/blake2.js";
 
 // ── config ──────────────────────────────────────────────────────────────────
-const PUBLISHER = process.env.WALRUS_PUBLISHER || "https://publisher.walrus-testnet.walrus.space";
-const AGGREGATOR = process.env.WALRUS_AGGREGATOR || "https://aggregator.walrus-testnet.walrus.space";
+// Walrus mainnet has no public publisher — publishing spends the operator's SUI
+// and WAL — so mainnet blobs are written with the walrus CLI, not over HTTP.
+const NETWORKS = {
+  testnet: {
+    packageId: "0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9",
+    accessPolicy: "0x7bac6b5168a646d7ef06a05fcdebb1526a831bae91c42bb1fd295f976af2cd51",
+    aggregator: "https://aggregator.walrus-testnet.walrus.space",
+    publisher: "https://publisher.walrus-testnet.walrus.space",
+  },
+  mainnet: {
+    packageId: "0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61",
+    accessPolicy: "0xc9bbb72830abc30fb995e57e3a752b9c79ffd8ff66f01357a42aeb95224be4b7",
+    aggregator: "https://aggregator.walrus-mainnet.walrus.space",
+    publisher: "",
+  },
+};
+const NETWORK = process.env.CARRY_NETWORK === "mainnet" ? "mainnet" : "testnet";
+const NET = NETWORKS[NETWORK];
+
+const PUBLISHER = process.env.WALRUS_PUBLISHER ?? NET.publisher;
+const AGGREGATOR = process.env.WALRUS_AGGREGATOR || NET.aggregator;
 const STORE_PATH = process.env.CARRY_STORE || `${homedir()}/.carry/store.json`;
 const EPOCHS = 50;
-const PACKAGE_ID = process.env.CARRY_PACKAGE_ID || "0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9";
-const ACCESS_POLICY = process.env.CARRY_ACCESS_POLICY || "0x7bac6b5168a646d7ef06a05fcdebb1526a831bae91c42bb1fd295f976af2cd51";
+const PACKAGE_ID = process.env.CARRY_PACKAGE_ID || NET.packageId;
+const ACCESS_POLICY = process.env.CARRY_ACCESS_POLICY || NET.accessPolicy;
 const VERIFY_BASE = process.env.CARRY_VERIFY_URL || "https://usecarry.xyz/verify";
+const VERIFY_QUERY = NETWORK === "testnet" ? "" : `?network=${NETWORK}`;
 
 // ── content-binding digest (blake2b256 of canonical JSON) ───────────────────
 const sortValue = (v) =>
@@ -52,6 +72,7 @@ const shortRef = (r) => (r && r.length > 16 ? `${r.slice(0, 8)}…${r.slice(-6)}
 const WALRUS_TIMEOUT_MS = Number(process.env.WALRUS_TIMEOUT_MS || 12000);
 
 async function walrusStore(payload) {
+  if (!PUBLISHER) throw new Error(`no public Walrus publisher on ${NETWORK} — write with the walrus CLI`);
   const res = await fetch(`${PUBLISHER}/v1/blobs?epochs=${EPOCHS}`, {
     method: "PUT",
     body: JSON.stringify(payload),
@@ -82,6 +103,11 @@ function suiCall(args) {
   throw new Error("Sui CLI not found — install it for `--onchain`");
 }
 function anchorOnChain(receipt, claim, walrusBlob) {
+  // `sui client call` runs against whichever env is active, so a mismatch would
+  // anchor against the wrong chain's package and fail obscurely.
+  const env = suiCall(["client", "active-env"]).trim();
+  if (env !== NETWORK)
+    throw new Error(`sui CLI is on "${env}" but carry targets "${NETWORK}" — run: sui client switch --env ${NETWORK}`);
   const used = claim ? [claim] : [...new Set(receipt.usedMemories.map((m) => m.namespace))];
   const blocked = receipt.blockedNamespaces || [];
   const answerId = receipt.answerId || `ans-${Buffer.from(receipt.query || "q").toString("hex").slice(0, 10)}`;
@@ -271,7 +297,7 @@ async function main() {
           console.log("  " + dim("  sui tx:") + white(r.digest));
           if (r.receiptId) {
             console.log("  " + dim("  proof:  ") + white(r.receiptId));
-            console.log("  " + green("  verify ↗ ") + white(`${VERIFY_BASE}/${r.receiptId}`));
+            console.log("  " + green("  verify ↗ ") + white(`${VERIFY_BASE}/${r.receiptId}${VERIFY_QUERY}`));
           }
         } catch (e) {
           console.log(red("failed"));

@@ -10,7 +10,8 @@
 [![npm @usecarry/cli](https://img.shields.io/npm/v/@usecarry/cli?label=%40usecarry%2Fcli&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/cli)
 [![npm @usecarry/mcp](https://img.shields.io/npm/v/@usecarry/mcp?label=%40usecarry%2Fmcp&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/mcp)
 [![Docs](https://img.shields.io/badge/docs-docs.usecarry.xyz-4DA2FF)](https://docs.usecarry.xyz)
-[![Walrus](https://img.shields.io/badge/storage-Walrus%20testnet-4DA2FF)](https://www.walrus.xyz)
+[![Sui Mainnet](https://img.shields.io/badge/Sui-mainnet%20live-4DA2FF)](https://suiscan.xyz/mainnet/object/0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61)
+[![Walrus](https://img.shields.io/badge/storage-Walrus%20mainnet-4DA2FF)](https://www.walrus.xyz)
 [![Seal](https://img.shields.io/badge/encryption-Seal%20via%20MemWal-2563eb)](https://github.com/MystenLabs/MemWal)
 ![Stack](https://img.shields.io/badge/Next.js%2016%20·%20React%2019%20·%20TypeScript-1f1f23)
 
@@ -42,14 +43,21 @@ Everything below is live right now. Click it.
 
 **Technical docs.** [docs.usecarry.xyz](https://docs.usecarry.xyz) — 20+ pages: architecture, the gate, Answer Receipts, the Move contract, the hash chain, the walletless verifier, and integration guides for the CLI, MCP, and AI SDK.
 
-**On Sui (testnet).** The gate is a deployed Move package. Anchoring an answer mints a tamper-evident **`Receipt` proof object**: `anchor_receipt` recomputes the verdict on-chain, binds the proof to the exact Walrus blob via blake2b256, and links it into an append-only hash chain. **Verify any proof yourself, no wallet:**
+**On Sui mainnet.** The gate is a deployed Move package. Anchoring an answer mints a tamper-evident **`Receipt` proof object**: `anchor_receipt` recomputes the verdict on-chain, binds the proof to the exact Walrus blob via blake2b256, and links it into an append-only hash chain. **Verify any proof yourself, no wallet:**
 
-- 🔎 **[Verify a live proof ↗](https://usecarry.xyz/verify/0x435148fde001b0ed2e935b4a72e686d5d7b64f54af74bd99af4bb8e9774ae215)** — reads the object from Sui, re-hashes the Walrus blob, recomputes the verdict. All three checks green.
-- Package `carry::access` → [`0xf7acc10e…98b6f9`](https://suiscan.xyz/testnet/object/0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9)
-- Honest anchor (`health`) → `all_authorized: true` → [tx `98ppKaNG…`](https://suiscan.xyz/testnet/tx/98ppKaNG3sEMvQAzSvufdJNGUdxmxw6U6uLw62GRHuyR)
-- A receipt that lies (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → [tx `HvWS6oUB…`](https://suiscan.xyz/testnet/tx/HvWS6oUB75GPwUwCsixNkFZSR2aWnwv8RczgZWTqE9A2)
+- 🔎 **[Verify a live proof ↗](https://usecarry.xyz/verify/0x70a997c909dbe0c0018e4de971a3d4a29287b788d9991de2964461ed2e713cdf?network=mainnet)** — reads the object from Sui, re-hashes the Walrus blob, recomputes the verdict. All three checks green.
+- 🔎 **[Verify the receipt that lies ↗](https://usecarry.xyz/verify/0xe888f0e38ee1c8ab8b4bb917a6d5902356a9464fb73d5511ec5d16b2d1fd03b7?network=mainnet)** — an *authentic* proof whose recorded verdict is a refusal. It verifies, and what it certifies is that the agent was blocked.
+- Package `carry::access` → [`0x77bf6a36…e43f61`](https://suiscan.xyz/mainnet/object/0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61)
+- Honest anchor (`health`) → `all_authorized: true` → [tx `38dBeih1…`](https://suiscan.xyz/mainnet/tx/38dBeih1MQErs4iMDETzbsh9YoDf7gxECPW8HQ8jZWbR)
+- A receipt that lies (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → [tx `8NUwAKdP…`](https://suiscan.xyz/mainnet/tx/8NUwAKdPf7cBiuhxtzF7eBT285jdci392arZQ3MHp23R)
 
-**On Walrus (testnet).** The memories aren't fixtures — they're real blobs anyone can resolve:
+Also deployed on **testnet** ([`0xf7acc10e…98b6f9`](https://suiscan.xyz/testnet/object/0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9)); every ID and proof transaction for both networks is in [`deployments/`](deployments).
+
+**On Walrus mainnet.** The anchored receipt is a real blob, stored for 53 epochs (~2 years) and resolvable by anyone:
+
+- Answer Receipt → [aggregator GET ↗](https://aggregator.walrus-mainnet.walrus.space/v1/blobs/VftF9eLPMTYNfQ1zmsojrKVRhAQffftTBT2Kc1gWxTo) — re-hashes to the digest anchored on Sui
+
+**On Walrus testnet.** The seed memories aren't fixtures — they're real blobs anyone can resolve:
 
 - `health · "Allergic to penicillin"` → [aggregator GET ↗](https://aggregator.walrus-testnet.walrus.space/v1/blobs/oHJRrapc1dfUR-IEuS1RO2xQZnGsPx8iFE12MXSylVs)
 - `health · "Gets migraines…"` → [GET ↗](https://aggregator.walrus-testnet.walrus.space/v1/blobs/teb6wF9Ypzec4x3CPbleffMyQfWog0I1RLGPwsqcDUY)

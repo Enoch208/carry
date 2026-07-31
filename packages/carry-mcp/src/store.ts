@@ -23,6 +23,7 @@ export type Receipt = {
 type State = { memories: Memory[]; policy: Record<string, boolean>; seq: number };
 
 const STORE_PATH = process.env.CARRY_STORE || `${homedir()}/.carry/store.json`;
+const network = process.env.CARRY_NETWORK === "mainnet" ? "mainnet" : "testnet";
 const live = Boolean(process.env.WALRUS_PUBLISHER && process.env.WALRUS_AGGREGATOR);
 const walrus: WalrusClient = live ? new WalrusHttp() : new MockWalrus();
 
@@ -40,7 +41,7 @@ function persist(s: State) {
 
 const state = load();
 
-export const backend = () => (live ? "Walrus testnet" : "mock");
+export const backend = () => (live ? `Walrus ${network}` : "mock");
 export const storePath = () => STORE_PATH;
 
 // Default-allow: a namespace is accessible unless it has been explicitly revoked.
