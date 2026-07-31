@@ -7,6 +7,8 @@ export type NetCfg = {
   grpcUrl: string;
   suiscan: string;
   walrusAggregator: string;
+  /// On-chain anchor for the portable memory vault (empty until created).
+  carryVault: string;
 };
 
 // Public fullnodes stopped serving raw JSON-RPC on 2026-07-31; reads go over gRPC,
@@ -19,6 +21,7 @@ export const NETWORKS: Record<Network, NetCfg> = {
     grpcUrl: process.env.SUI_GRPC_URL || "https://fullnode.testnet.sui.io:443",
     suiscan: "https://suiscan.xyz/testnet",
     walrusAggregator: process.env.WALRUS_AGGREGATOR || "https://aggregator.walrus-testnet.walrus.space",
+    carryVault: process.env.CARRY_VAULT || "",
   },
   mainnet: {
     network: "mainnet",
@@ -32,6 +35,9 @@ export const NETWORKS: Record<Network, NetCfg> = {
     suiscan: "https://suiscan.xyz/mainnet",
     walrusAggregator:
       process.env.WALRUS_MAINNET_AGGREGATOR || "https://aggregator.walrus-mainnet.walrus.space",
+    carryVault:
+      process.env.CARRY_MAINNET_VAULT ||
+      "0x7d7afe98ab2c57ca0817e3b58128bfdf2cf2a86c5f2474024378c11b1f702c48",
   },
 };
 
