@@ -82,7 +82,7 @@ export default async function ConsolePage({
 
   return (
     <div className="px-8 py-9">
-      <div className="mx-auto w-full max-w-4xl">
+      <div className="mx-auto w-full max-w-6xl">
         <header className="mb-8 flex items-center gap-3">
           <div className="flex-1">
             <h1 className="text-[15px] font-semibold text-fg">Trust &amp; audit console</h1>
