@@ -21,13 +21,15 @@ const AGENTS = [
 
 const NAMESPACES = ["public-support", "internal-process", "billing", "customer-pii", "legal", "admin"];
 
+// Each row states what must be true, so a granted case and a denied case are
+// both "correct" — the tick reflects reality matching the claim, not the value.
 const STORIES = [
-  ["The FAQ agent cannot reach billing", "faq-agent", "billing"],
-  ["Nor can it reach customer records", "faq-agent", "customer-pii"],
-  ["The refund agent works invoices but never customer records", "refund-agent", "customer-pii"],
-  ["Only the manager sees legal", "manager-agent", "legal"],
-  ["…and the refund agent does not", "refund-agent", "legal"],
-  ["admin was never granted to anyone", "manager-agent", "admin"],
+  ["The FAQ agent cannot reach billing", "faq-agent", "billing", false],
+  ["Nor can it reach customer records", "faq-agent", "customer-pii", false],
+  ["The refund agent works invoices but never customer records", "refund-agent", "customer-pii", false],
+  ["Only the manager sees legal", "manager-agent", "legal", true],
+  ["…and the refund agent does not", "refund-agent", "legal", false],
+  ["admin was never granted to anyone", "manager-agent", "admin", false],
 ] as const;
 
 export default async function EnterprisePage({
@@ -51,12 +53,10 @@ export default async function EnterprisePage({
   );
 
   const stories = await Promise.all(
-    STORIES.map(async ([label, agent, ns]) => ({
-      label,
-      agent,
-      ns,
-      allowed: await readIsAllowed(agent, ns, cfg.accessPolicy, network),
-    }))
+    STORIES.map(async ([label, agent, ns, expected]) => {
+      const allowed = await readIsAllowed(agent, ns, cfg.accessPolicy, network);
+      return { label, agent, ns, allowed, holds: allowed === expected };
+    })
   );
 
   return (
@@ -129,9 +129,9 @@ export default async function EnterprisePage({
           {stories.map((s) => (
             <div key={s.label} className="flex items-start gap-3 rounded-lg border border-border bg-surface px-4 py-3">
               <Icon
-                icon={s.allowed ? BlockedIcon : CheckIcon}
+                icon={s.holds ? CheckIcon : BlockedIcon}
                 size={16}
-                className={`mt-0.5 shrink-0 ${s.allowed ? "text-danger" : "text-success"}`}
+                className={`mt-0.5 shrink-0 ${s.holds ? "text-success" : "text-danger"}`}
                 aria-hidden
               />
               <div className="min-w-0 flex-1">
