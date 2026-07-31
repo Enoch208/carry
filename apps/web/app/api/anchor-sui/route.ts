@@ -12,8 +12,11 @@ export async function POST(req: Request) {
     const blocked: string[] = receipt.blockedNamespaces ?? [];
 
     // Bind the proof to the exact receipt content, then store that content on Walrus.
+    // Receipts must outlive the demo/judging window, so store with a long epoch count
+    // (the Walrus client defaults to 5, which expires in days and rots /verify links).
+    const RECEIPT_EPOCHS = 50;
     const digestHex = digestHexOf(receipt);
-    const { blobId } = await store.walrus.store(receipt);
+    const { blobId } = await store.walrus.store(receipt, RECEIPT_EPOCHS);
 
     const result = await anchorOnChain({
       answerId: receipt.answerId,
