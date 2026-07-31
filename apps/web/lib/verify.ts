@@ -1,6 +1,8 @@
 import { getReceipt, readIsAllowed, readPolicyVersion, type OnchainReceipt } from "@/lib/sui";
 import { chainDigestHex, digestMatches } from "@/lib/blake";
-import { DEFAULT_NETWORK, netCfg, type Network } from "@/lib/networks";
+import { DEFAULT_NETWORK, NETWORKS, netCfg, type Network } from "@/lib/networks";
+
+const ALL_AGGREGATORS = [...new Set(Object.values(NETWORKS).map((n) => n.walrusAggregator))];
 
 export type Check = { label: string; ok: boolean; detail: string };
 export type VerifyResult = {
@@ -32,21 +34,39 @@ export async function verifyReceipt(id: string, network: Network = DEFAULT_NETWO
     detail: "chain_digest = blake2b256(prev_digest ++ digest)",
   });
 
-  // 2. content binding — Walrus blob hashes to the on-chain digest
+  // 2. content binding — Walrus blob hashes to the on-chain digest.
+  //
+  // Blob ids are content-addressed and the digest is what proves the binding, so
+  // which aggregator served the bytes cannot weaken the check: any blob that
+  // hashes to the on-chain digest is the receipt. A receipt anchored on one
+  // network can therefore reference a blob stored on the other, and we look on
+  // both rather than reporting a false negative.
+  const aggregators = [aggregator, ...ALL_AGGREGATORS.filter((a) => a !== aggregator)];
   let contentOk = false;
-  try {
-    const res = await fetch(`${aggregator}/v1/blobs/${receipt.walrusBlob}`, { cache: "no-store" });
-    if (res.ok) {
+  let servedBy = "";
+  for (const agg of aggregators) {
+    try {
+      const res = await fetch(`${agg}/v1/blobs/${receipt.walrusBlob}`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!res.ok) continue;
       const bytes = new Uint8Array(await res.arrayBuffer());
-      contentOk = digestMatches(bytes, receipt.digestHex);
+      if (digestMatches(bytes, receipt.digestHex)) {
+        contentOk = true;
+        servedBy = agg;
+        break;
+      }
+    } catch {
+      // try the next aggregator
     }
-  } catch {
-    contentOk = false;
   }
   checks.push({
     label: "Content binding (Walrus ↔ chain)",
     ok: contentOk,
-    detail: "blake2b256 of the canonical Walrus blob equals the on-chain digest",
+    detail: contentOk
+      ? `blake2b256 of the blob at ${servedBy.replace("https://", "")} equals the on-chain digest`
+      : "blake2b256 of the canonical Walrus blob equals the on-chain digest",
   });
 
   // 3. authorization recomputed against the live on-chain policy
