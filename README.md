@@ -63,6 +63,15 @@ Also deployed on **testnet** ([`0xf7acc10e…98b6f9`](https://suiscan.xyz/testne
 - `health · "Gets migraines…"` → [GET ↗](https://aggregator.walrus-testnet.walrus.space/v1/blobs/teb6wF9Ypzec4x3CPbleffMyQfWog0I1RLGPwsqcDUY)
 - `diet · "Prefers vegan meals"` → [GET ↗](https://aggregator.walrus-testnet.walrus.space/v1/blobs/48oFqb9rDKoWi0-ynJbp9cFnerTCL6EhEQ9WFrvmJoU)
 
+**Check it yourself, no wallet.** Four pages that hold no state and read only from Sui and Walrus:
+
+| | |
+| --- | --- |
+| [**/lab**](https://usecarry.xyz/lab?network=mainnet) | ten attacks run live against the on-chain gate — and the same probes against the previous, fail-open package for comparison |
+| [**/vault**](https://usecarry.xyz/vault?network=mainnet) | a memory vault rebuilt from chain and Walrus alone, which is what a second device sees |
+| [**/metrics**](https://usecarry.xyz/metrics) | receipt totals from each policy's own on-chain counter, with every Walrus blob re-fetched |
+| [**/pricing**](https://usecarry.xyz/pricing) | the commercial model, and a plain list of what is and is not built |
+
 **In your terminal.** `carry` — proof-carrying memory as a CLI ([`@usecarry/cli`](packages/carry-cli), sharing one on-disk vault with the MCP server):
 
 ```bash
@@ -96,6 +105,10 @@ mainnet transaction it produced, and a page you can check yourself — no screen
 | 2026-07-31 | **CLI and MCP are network-aware.** `CARRY_NETWORK` selects package, policy and aggregator; anchoring refuses to run when the Sui CLI's active env disagrees with the target chain. | [commit](https://github.com/Enoch208/carry/commit/4046f18) |
 | 2026-07-31 | **Two reliability fixes found while hardening.** A Walrus outage could hang `carry anchor` indefinitely and stop it ever reaching the chain; anchored receipts were stored for Walrus's default 5 epochs, which silently expires `/verify` links within days. | [outage fix](https://github.com/Enoch208/carry/commit/cdae85a) · [epochs fix](https://github.com/Enoch208/carry/commit/121b755) |
 
+| 2026-07-31 | **Sealed Answer Receipts.** A proof is public, so the blob it binds to must not carry the memory. Sealed receipts keep agent, namespaces, verdict and policy version in the clear and replace query, answer and memory contents with salted commitments — the salt lives only in the openable payload, so a short value cannot be brute-forced out of a hash. | [sealed proof ↗](https://usecarry.xyz/verify/0x0837e76b15e3ef448069909c5c6eb188651c50863e927e2853f3cf62265e8f71?network=mainnet) · [its public blob ↗](https://aggregator.walrus-mainnet.walrus.space/v1/blobs/2FAgvpFlbwmJWq0xal0OtxW_iMPeMC132HI5iG4aVJM) |
+| 2026-07-31 | **Attacks measured, not asserted.** Ten probes run as real `is_allowed` calls against the deployed policy on every page load, including a granted control so a gate that denied everything could not score a perfect zero. | [/lab ↗](https://usecarry.xyz/lab?network=mainnet) |
+| 2026-07-31 | **The gate reads the chain, not the process.** Each route is its own serverless function with its own memory, so a policy held in process meant a revoke could report success while the gate kept serving the data. Recalls now resolve against the policy object on Sui and fail closed. | [/v1/audit ↗](https://usecarry.xyz/v1/audit) |
+| 2026-07-31 | **A hosted gateway and a commercial model.** Six `/v1` endpoints — memories, recall, policies, receipts, audit — with fail-closed API-key auth, plus pricing metered on the real per-proof cost. | [/pricing ↗](https://usecarry.xyz/pricing) |
 | 2026-07-31 | **Anchoring is SDK-native and works in production.** The route used to shell out to `sui client`, and there is no sui binary on the deployment host — so on-chain anchoring worked on a laptop and nowhere else. It now builds the transaction with `@mysten/sui` and executes over gRPC with a server signer that holds no OwnerCap, so it can append proofs but never change the gate. | [first production anchor](https://suiscan.xyz/mainnet/tx/A5u2HEEbVUTiU6sX2PSwEkkfMBr1jUaenCssL9DoVtGh) · [verify ↗](https://usecarry.xyz/verify/0x62b085b4a96127835fe3dfed851627699d139da6f6e90f18f0ec608055bb5547?network=mainnet) |
 | 2026-07-31 | **The gate is now default-deny — it was fail-open.** `is_allowed` returned true for any pair with no entry, so an unconfigured agent could read every namespace. Absent now means denied in the Move gate, the CLI and the MCP server. | [package](https://suiscan.xyz/mainnet/object/0xeaf4e6e4e96e4f50dfcf2f4beebe3bacb766ad6cbf352b0982bd9631884032d8) · [verify ↗](https://usecarry.xyz/verify/0x1d9f44e0b8599b199f3b313775a3a639e7d96f012d0dd01996a34c80816376b8?network=mainnet) |
 | 2026-07-31 | **Policy versioning closes a time-of-check/time-of-use hole.** Retrieval reads the policy, generation takes time, and a revoke landing in between used to be papered over. A receipt now cites the policy version it was computed against and consensus rejects it if the policy has moved. | [rejected on mainnet](https://suiscan.xyz/mainnet/tx/DT3cCP6ubZiwKUFnCXCK85BG7rXJeX2PxbQ21kdwrRXo) · [package](https://suiscan.xyz/mainnet/object/0x010719e5141bc53bc32c1e75acf39872d1ee535d2f2b8bcdb059e4ece13ad0a4) |
