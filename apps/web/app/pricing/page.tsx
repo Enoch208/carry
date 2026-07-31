@@ -141,7 +141,7 @@ export default function PricingPage() {
             <h1 className="text-[15px] font-semibold text-fg">Pricing</h1>
             <p className="text-[12px] text-faint">proof-carrying memory, priced by what it protects</p>
           </div>
-          <Link href="/companion" className="text-[12px] text-faint transition-colors hover:text-accent">
+          <Link href="/chat-a" className="text-[12px] text-faint transition-colors hover:text-accent">
             Carry ↗
           </Link>
         </header>

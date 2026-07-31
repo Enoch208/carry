@@ -44,7 +44,7 @@ export default async function VaultPage({
               no wallet · no local state · {network} · rebuilt from Sui &amp; Walrus
             </p>
           </div>
-          <Link href="/companion" className="text-[12px] text-faint transition-colors hover:text-accent">
+          <Link href="/chat-a" className="text-[12px] text-faint transition-colors hover:text-accent">
             Carry ↗
           </Link>
         </header>

@@ -44,7 +44,7 @@ export default async function VerifyPage({
             <h1 className="text-[15px] font-semibold text-fg">Proof Verifier</h1>
             <p className="text-[12px] text-faint">no wallet · read-only · {network} · recomputed against Sui &amp; Walrus</p>
           </div>
-          <Link href="/companion" className="text-[12px] text-faint transition-colors hover:text-accent">
+          <Link href="/chat-a" className="text-[12px] text-faint transition-colors hover:text-accent">
             Carry ↗
           </Link>
         </header>

@@ -46,7 +46,7 @@ export default async function LabPage({
               every row is a real is_allowed call against the live {network} policy
             </p>
           </div>
-          <Link href="/companion" className="text-[12px] text-faint transition-colors hover:text-accent">
+          <Link href="/chat-a" className="text-[12px] text-faint transition-colors hover:text-accent">
             Carry ↗
           </Link>
         </header>

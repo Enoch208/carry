@@ -96,7 +96,7 @@ export default async function MetricsPage() {
               read from Sui and Walrus on every request · nothing self-reported
             </p>
           </div>
-          <Link href="/companion" className="text-[12px] text-faint transition-colors hover:text-accent">
+          <Link href="/chat-a" className="text-[12px] text-faint transition-colors hover:text-accent">
             Carry ↗
           </Link>
         </header>

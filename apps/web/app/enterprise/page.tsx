@@ -70,7 +70,7 @@ export default async function EnterprisePage({
               four agents, six namespaces, read live from the {network} policy
             </p>
           </div>
-          <Link href="/companion" className="text-[12px] text-faint transition-colors hover:text-accent">
+          <Link href="/chat-a" className="text-[12px] text-faint transition-colors hover:text-accent">
             Carry ↗
           </Link>
         </header>
