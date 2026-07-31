@@ -10,7 +10,7 @@
 [![npm @usecarry/cli](https://img.shields.io/npm/v/@usecarry/cli?label=%40usecarry%2Fcli&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/cli)
 [![npm @usecarry/mcp](https://img.shields.io/npm/v/@usecarry/mcp?label=%40usecarry%2Fmcp&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/mcp)
 [![Docs](https://img.shields.io/badge/docs-docs.usecarry.xyz-4DA2FF)](https://docs.usecarry.xyz)
-[![Sui Mainnet](https://img.shields.io/badge/Sui-mainnet%20live-4DA2FF)](https://suiscan.xyz/mainnet/object/0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61)
+[![Sui Mainnet](https://img.shields.io/badge/Sui-mainnet%20live-4DA2FF)](https://suiscan.xyz/mainnet/object/0x010719e5141bc53bc32c1e75acf39872d1ee535d2f2b8bcdb059e4ece13ad0a4)
 [![Walrus](https://img.shields.io/badge/storage-Walrus%20mainnet-4DA2FF)](https://www.walrus.xyz)
 [![Seal](https://img.shields.io/badge/encryption-Seal%20via%20MemWal-2563eb)](https://github.com/MystenLabs/MemWal)
 ![Stack](https://img.shields.io/badge/Next.js%2016%20·%20React%2019%20·%20TypeScript-1f1f23)
@@ -45,11 +45,11 @@ Everything below is live right now. Click it.
 
 **On Sui mainnet.** The gate is a deployed Move package. Anchoring an answer mints a tamper-evident **`Receipt` proof object**: `anchor_receipt` recomputes the verdict on-chain, binds the proof to the exact Walrus blob via blake2b256, and links it into an append-only hash chain. **Verify any proof yourself, no wallet:**
 
-- 🔎 **[Verify a live proof ↗](https://usecarry.xyz/verify/0x70a997c909dbe0c0018e4de971a3d4a29287b788d9991de2964461ed2e713cdf?network=mainnet)** — reads the object from Sui, re-hashes the Walrus blob, recomputes the verdict. All three checks green.
-- 🔎 **[Verify the receipt that lies ↗](https://usecarry.xyz/verify/0xe888f0e38ee1c8ab8b4bb917a6d5902356a9464fb73d5511ec5d16b2d1fd03b7?network=mainnet)** — an *authentic* proof whose recorded verdict is a refusal. It verifies, and what it certifies is that the agent was blocked.
-- Package `carry::access` → [`0x77bf6a36…e43f61`](https://suiscan.xyz/mainnet/object/0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61)
-- Honest anchor (`health`) → `all_authorized: true` → [tx `38dBeih1…`](https://suiscan.xyz/mainnet/tx/38dBeih1MQErs4iMDETzbsh9YoDf7gxECPW8HQ8jZWbR)
-- A receipt that lies (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → [tx `8NUwAKdP…`](https://suiscan.xyz/mainnet/tx/8NUwAKdPf7cBiuhxtzF7eBT285jdci392arZQ3MHp23R)
+- 🔎 **[Verify a live proof ↗](https://usecarry.xyz/verify/0xca79b2314768e84ccd404da2718da883ccd2a84b62b1b1292e6dacd5e0cdec74?network=mainnet)** — reads the object from Sui, re-hashes the Walrus blob, recomputes the verdict, and confirms the policy has not moved since. All four checks green.
+- 🔎 **[Verify the receipt that lies ↗](https://usecarry.xyz/verify/0xff9a170b79ce02ebb75880a60b8da6f1b27a6a2b4016d10a5977968a8267016b?network=mainnet)** — an *authentic* proof whose recorded verdict is a refusal. It verifies, and what it certifies is that the agent was blocked.
+- Package `carry::access` → [`0x010719e5…3ad0a4`](https://suiscan.xyz/mainnet/object/0x010719e5141bc53bc32c1e75acf39872d1ee535d2f2b8bcdb059e4ece13ad0a4)
+- Honest anchor (`health`) → `all_authorized: true` → [tx `6SF3GFom…`](https://suiscan.xyz/mainnet/tx/6SF3GFomdYirhXQ5RY674TaRgqWvyyWfP8MiM6JPDpbb)
+- A receipt that lies (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → [tx `96SAp82K…`](https://suiscan.xyz/mainnet/tx/96SAp82KZq9dW5qM2hBH7vaYfKaKfXMFXorv5bogNiLV)
 
 Also deployed on **testnet** ([`0xf7acc10e…98b6f9`](https://suiscan.xyz/testnet/object/0xf7acc10ee3de95ed5bb4560e48d5bf4a4e24f7c4003b892b56632c7ff398b6f9)); every ID and proof transaction for both networks is in [`deployments/`](deployments).
 
