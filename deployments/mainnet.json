@@ -15,13 +15,24 @@
   "proofTxns": {
     "setAccess_revoke_aria_billing": "6qNBNrb4TAYwNqdbRJi6cbjdESjqfLidyHiKhau1paB3",
     "anchor_honest_all_authorized_true": "9eD248ZBnSrjvNzEwGfPcTNphJFiYA4ibqGjEAa6E7Ue",
-    "anchor_tampered_all_authorized_false": "3WLSNkCL3FBww5UuqaJCrpEkAj7Hvr1z46q6AAd3UDZt"
+    "anchor_tampered_all_authorized_false": "3WLSNkCL3FBww5UuqaJCrpEkAj7Hvr1z46q6AAd3UDZt",
+    "anchor_honest_with_walrus_blob": "38dBeih1MQErs4iMDETzbsh9YoDf7gxECPW8HQ8jZWbR",
+    "anchor_tampered_with_walrus_blob": "8NUwAKdPf7cBiuhxtzF7eBT285jdci392arZQ3MHp23R"
   },
   "exampleReceipts": {
-    "honest_all_authorized_true": "0x58e54937906a82d9faea4f542dba936fea3211aeed0dd42d4cb632d70a222d44",
-    "tampered_all_authorized_false": "0x7c51d9403e8a620fa07215b98f5a852bbd58e81b4fe229e17682c03b65bbe653",
-    "walrusBlob": "",
-    "note": "Anchored during a fleet-wide Walrus publisher outage, so these carry no Walrus blob: the hash-chain and authorization checks pass, the content-binding check does not. Re-anchor with blobs once Walrus writes recover."
+    "honest_all_authorized_true": "0x70a997c909dbe0c0018e4de971a3d4a29287b788d9991de2964461ed2e713cdf",
+    "tampered_all_authorized_false": "0xe888f0e38ee1c8ab8b4bb917a6d5902356a9464fb73d5511ec5d16b2d1fd03b7",
+    "walrusBlob": "VftF9eLPMTYNfQ1zmsojrKVRhAQffftTBT2Kc1gWxTo",
+    "walrusBlobObject": "0x619d7b698e82a760d3aaa956e83db313cee8d7f91b251a789db72df1057c3bba",
+    "walrusExpiryEpoch": 89,
+    "verifyUrl": "https://usecarry.xyz/verify/0x70a997c909dbe0c0018e4de971a3d4a29287b788d9991de2964461ed2e713cdf?network=mainnet",
+    "verifyUrlTampered": "https://usecarry.xyz/verify/0xe888f0e38ee1c8ab8b4bb917a6d5902356a9464fb73d5511ec5d16b2d1fd03b7?network=mainnet",
+    "note": "Both receipts bind to the same Walrus mainnet blob and pass all three checks. The tampered one verifies as an authentic receipt whose recorded verdict is all_authorized=false \u2014 the proof is honest about the blocked claim.",
+    "supersedes": {
+      "honest": "0x58e54937906a82d9faea4f542dba936fea3211aeed0dd42d4cb632d70a222d44",
+      "tampered": "0x7c51d9403e8a620fa07215b98f5a852bbd58e81b4fe229e17682c03b65bbe653",
+      "why": "anchored during the Walrus publisher outage with no blob, so their content-binding check cannot pass"
+    }
   },
   "gateReads": {
     "aria/billing": false,
@@ -33,5 +44,11 @@
       "https://sui-mainnet.nodeinfra.com"
     ]
   },
-  "pending": "Receipts are anchored but not yet bound to Walrus blobs — the publisher fleet is mid-outage (writes time out; reads are healthy). Re-anchor with blobs once writes recover so the content-binding check passes."
+  "walrus": {
+    "network": "mainnet",
+    "aggregator": "https://aggregator.walrus-mainnet.walrus.space",
+    "note": "Walrus mainnet has no public publisher by design (publishing spends the operator\u2019s SUI and WAL), so blobs are written with the walrus CLI paying from this wallet.",
+    "storeCostWal": 0.299,
+    "epochsPurchased": 53
+  }
 }
