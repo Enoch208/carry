@@ -6,7 +6,7 @@
 
 [![CI](https://github.com/Enoch208/carry/actions/workflows/ci.yml/badge.svg)](https://github.com/Enoch208/carry/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-30%20passing-10b981)](#tests)
+[![Tests](https://img.shields.io/badge/tests-42%20passing-10b981)](#tests)
 [![npm @usecarry/cli](https://img.shields.io/npm/v/@usecarry/cli?label=%40usecarry%2Fcli&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/cli)
 [![npm @usecarry/mcp](https://img.shields.io/npm/v/@usecarry/mcp?label=%40usecarry%2Fmcp&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/mcp)
 [![Docs](https://img.shields.io/badge/docs-docs.usecarry.xyz-4DA2FF)](https://docs.usecarry.xyz)
@@ -71,6 +71,7 @@ Also deployed on **testnet** ([`0xf7acc10e…98b6f9`](https://suiscan.xyz/testne
 | [**/vault**](https://usecarry.xyz/vault?network=mainnet) | a memory vault rebuilt from chain and Walrus alone, which is what a second device sees |
 | [**/metrics**](https://usecarry.xyz/metrics) | receipt totals from each policy's own on-chain counter, with every Walrus blob re-fetched |
 | [**/enterprise**](https://usecarry.xyz/enterprise?network=mainnet) | a support desk where four agents' reach is enforced by the contract, not a prompt |
+| [**/console**](https://usecarry.xyz/console?network=mainnet) | the audit console — who has access, what each answer used, what was refused |
 | [**/pricing**](https://usecarry.xyz/pricing) | the commercial model, and a plain list of what is and is not built |
 
 **In your terminal.** `carry` — proof-carrying memory as a CLI ([`@usecarry/cli`](packages/carry-cli), sharing one on-disk vault with the MCP server):
@@ -84,9 +85,9 @@ carry anchor --onchain                       # → submits a real Sui tx; consen
 carry anchor --onchain --claim billing       # → all_authorized: false — the chain catches the lie, live
 ```
 
-**For any agent.** An **MCP server** ([`@usecarry/mcp`](packages/carry-mcp)) gives Cursor / Claude Code / Claude Desktop the same gated, receipted memory; a **Vercel AI SDK adapter** ([`@usecarry/vercel-ai`](packages/carry-vercel-ai)) wraps any model in one line — gated memory before generation, a receipt on every call.
+**For any agent.** An **MCP server** ([`@usecarry/mcp`](packages/carry-mcp)) gives Cursor / Claude Code / Claude Desktop the same gated, receipted memory; a **Vercel AI SDK adapter** ([`@usecarry/vercel-ai`](packages/carry-vercel-ai)) wraps any model in one line; and [`@usecarry/agents`](packages/carry-agents) drops the same gate into **LangGraph**, the **OpenAI Agents SDK**, or anything else — no framework imported, so it never drags in a peer dependency. Point any of them at a hosted gateway and the gate runs server-side against the on-chain policy.
 
-**Tested.** 20 TypeScript tests (gate · policy · receipts · sealed commitments · Walrus) + 10 Move tests for `carry::access` — default-deny, stale policy versions, nonce replay, receipt expiry, foreign capabilities and vault concurrency. Green in [CI](../../actions).
+**Tested.** 32 TypeScript tests (gate · policy · receipts · sealed commitments · Walrus) + 10 Move tests for `carry::access` — default-deny, stale policy versions, nonce replay, receipt expiry, foreign capabilities and vault concurrency. Green in [CI](../../actions).
 
 ---
 
@@ -106,6 +107,7 @@ mainnet transaction it produced, and a page you can check yourself — no screen
 | 2026-07-31 | **CLI and MCP are network-aware.** `CARRY_NETWORK` selects package, policy and aggregator; anchoring refuses to run when the Sui CLI's active env disagrees with the target chain. | [commit](https://github.com/Enoch208/carry/commit/4046f18) |
 | 2026-07-31 | **Two reliability fixes found while hardening.** A Walrus outage could hang `carry anchor` indefinitely and stop it ever reaching the chain; anchored receipts were stored for Walrus's default 5 epochs, which silently expires `/verify` links within days. | [outage fix](https://github.com/Enoch208/carry/commit/cdae85a) · [epochs fix](https://github.com/Enoch208/carry/commit/121b755) |
 
+| 2026-07-31 | **A trust and audit console, and framework adapters.** The console answers who has access, what each answer used and what was refused — every figure read from chain, with a CSV export for compliance. `@usecarry/agents` drops the same gate into LangGraph and the OpenAI Agents SDK without importing either. | [console ↗](https://usecarry.xyz/console?network=mainnet) · [CSV ↓](https://usecarry.xyz/v1/audit/export?network=mainnet) |
 | 2026-07-31 | **A support desk, gated on-chain.** Four agents across six namespaces on mainnet: the FAQ agent cannot reach billing, the refund agent works invoices but never customer records, and `admin` is granted to nobody — every cell read live rather than rendered from a fixture. | [/enterprise ↗](https://usecarry.xyz/enterprise?network=mainnet) |
 | 2026-07-31 | **A threat model that names what is not defended** — OwnerCap concentration, prompt injection inside stored memory, receipt coverage being a deployment property, and correlation from public receipts. | [threat-model.md](docs/threat-model.md) |
 | 2026-07-31 | **Sealed Answer Receipts.** A proof is public, so the blob it binds to must not carry the memory. Sealed receipts keep agent, namespaces, verdict and policy version in the clear and replace query, answer and memory contents with salted commitments — the salt lives only in the openable payload, so a short value cannot be brute-forced out of a hash. | [sealed proof ↗](https://usecarry.xyz/verify/0x0837e76b15e3ef448069909c5c6eb188651c50863e927e2853f3cf62265e8f71?network=mainnet) · [its public blob ↗](https://aggregator.walrus-mainnet.walrus.space/v1/blobs/2FAgvpFlbwmJWq0xal0OtxW_iMPeMC132HI5iG4aVJM) |
@@ -377,7 +379,7 @@ The landing page is a faithful port of a premium "deep-tech" template, recolored
 - **Engine:** `@carry/core` (gate · policy · receipts, dependency-free) + `@carry/walrus` (Walrus HTTP adapters) + `@usecarry/mcp` (MCP server) + `@usecarry/cli` (the `carry` command), as npm workspaces.
 - **Storage & privacy:** Walrus mainnet + testnet; sealed receipts publish salted commitments instead of contents; Seal + embeddings via MemWal in `memwal` mode.
 - **Models:** OpenAI GPT-4o + Anthropic Claude, behind one `LLMProvider` interface.
-- **Tests:** Vitest — 20 tests across 3 workspaces, plus 10 Move tests for the contract.
+- **Tests:** Vitest — 32 tests across the workspaces, plus 10 Move tests for the contract.
 
 ## Project layout
 
@@ -414,6 +416,7 @@ packages/
   carry-mcp/                  # @usecarry/mcp — MCP server: gated, receipted memory tools for any agent (Cursor / Claude Code)
   carry-cli/                  # @usecarry/cli — the `carry` command: recall-with-receipt in your terminal, shared vault
   carry-vercel-ai/            # @usecarry/vercel-ai — Vercel AI SDK middleware: gate memory + attach a receipt in one line
+  carry-agents/               # @usecarry/agents — LangGraph · OpenAI Agents SDK · any framework, over one `gateMemory` primitive
 examples/
   agent-memory.ts             # runnable: teach → gate → Walrus verify → receipt, no UI.
 contracts/                    # Sui Move package carry::access — on-chain agent×namespace gate + receipt anchoring (+ tests)
@@ -439,7 +442,7 @@ npm install            # installs all workspaces
 #   MEMWAL_ACCOUNT_ID=...   MEMWAL_SERVER_URL=https://relayer.memory.walrus.xyz   MEMWAL_PRIVATE_KEY=...
 
 npm run dev            # http://localhost:3000
-npm test               # 20 tests across the workspaces
+npm test               # 32 tests across the workspaces
 npm run build          # production build
 
 # upload the demo memories to Walrus (prints real blob IDs):
@@ -460,7 +463,7 @@ Anchoring needs `CARRY_SIGNER_KEY` (a funded signer that holds no OwnerCap) and 
 ## Tests
 
 ```bash
-npm test                          # 20 TypeScript tests
+npm test                          # 32 TypeScript tests
 sui move test --path contracts    # 10 Move tests
 ```
 
