@@ -66,7 +66,7 @@ export default async function VerifyPage({
               </span>
               <div>
                 <p className={`text-sm font-semibold ${allOk ? "text-success" : "text-danger"}`}>
-                  {allOk ? "Verified — all three checks pass" : "Verification failed — a check did not pass"}
+                  {allOk ? `Verified — all ${checks.length} checks pass` : "Verification failed — a check did not pass"}
                 </p>
                 <p className="text-[12px] text-muted">Carry Proof #{receipt!.seq} · agent “{receipt!.agent}”</p>
               </div>
