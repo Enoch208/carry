@@ -47,14 +47,28 @@ const isAllowed = (s, ns) => s.policy[ns] !== false;
 const shortRef = (r) => (r && r.length > 16 ? `${r.slice(0, 8)}…${r.slice(-6)}` : r || "");
 
 // ── walrus ────────────────────────────────────────────────────────────────
+// Publishers can hang rather than refuse, so every call is bounded. A publisher
+// outage must never block the Sui anchor — the on-chain verdict stands alone.
+const WALRUS_TIMEOUT_MS = Number(process.env.WALRUS_TIMEOUT_MS || 12000);
+
 async function walrusStore(payload) {
-  const res = await fetch(`${PUBLISHER}/v1/blobs?epochs=${EPOCHS}`, { method: "PUT", body: JSON.stringify(payload) });
+  const res = await fetch(`${PUBLISHER}/v1/blobs?epochs=${EPOCHS}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(WALRUS_TIMEOUT_MS),
+  });
   const j = await res.json();
   const id = j.newlyCreated?.blobObject?.blobId ?? j.alreadyCertified?.blobId;
   if (!id) throw new Error("Walrus store failed");
   return id;
 }
-const walrusVerify = (id) => fetch(`${AGGREGATOR}/v1/blobs/${id}`).then((r) => r.ok).catch(() => false);
+const walrusTryStore = (payload) => walrusStore(payload).catch(() => null);
+const walrusVerify = (id) =>
+  id
+    ? fetch(`${AGGREGATOR}/v1/blobs/${id}`, { signal: AbortSignal.timeout(WALRUS_TIMEOUT_MS) })
+        .then((r) => r.ok)
+        .catch(() => false)
+    : Promise.resolve(false);
 
 // ── sui (on-chain anchor via the local Sui CLI) ─────────────────────────────
 function suiCall(args) {
@@ -128,7 +142,9 @@ function printReceipt(r, agent) {
   console.log("  " + rule());
   const verdict = blocked.length
     ? red(`${blocked.length} namespace${blocked.length > 1 ? "s" : ""} blocked · your data never reached the model`)
-    : green(`${used.length} used · 0 blocked · every source verified on Walrus`);
+    : used.every((m) => m.verified)
+      ? green(`${used.length} used · 0 blocked · every source verified on Walrus`)
+      : green(`${used.length} used · 0 blocked`) + gray(" · some sources unverified (Walrus unreachable)");
   console.log("  " + dim("gate ran before retrieval · ") + verdict);
   console.log();
 }
@@ -177,12 +193,14 @@ async function main() {
       const ns = flags.ns;
       if (!text || !ns) return fail("usage: carry remember <text> --ns <namespace>");
       process.stdout.write(dim("  storing on Walrus… "));
-      const walrusRef = await walrusStore({ namespace: ns, content: text, createdAt: new Date().toISOString() });
+      const walrusRef = await walrusTryStore({ namespace: ns, content: text, createdAt: new Date().toISOString() });
       s.memories.push({ memoryId: `m${++s.seq}`, namespace: ns, content: text, walrusRef, createdAt: new Date().toISOString() });
       save(s);
-      console.log(green("done"));
+      console.log(walrusRef ? green("done") : red("publisher unreachable"));
       console.log("  " + green("●") + " " + cyan(ns.padEnd(9)) + white(text));
-      console.log("    " + dim(`walrus:${shortRef(walrusRef)}  ${ok} stored`));
+      console.log("    " + (walrusRef
+        ? dim(`walrus:${shortRef(walrusRef)}  ${ok} stored`)
+        : dim("walrus: ") + no + dim(" publisher unreachable — memory saved locally, provenance pending")));
       break;
     }
     case "recall": {
@@ -231,15 +249,20 @@ async function main() {
     case "anchor": {
       if (!s.lastReceipt) return fail("no receipt yet — run `carry recall …` first");
       process.stdout.write(dim("  anchoring receipt on Walrus… "));
-      const blobId = await walrusStore(s.lastReceipt);
-      const verified = await walrusVerify(blobId);
-      console.log(green("done"));
-      console.log("  " + (verified ? ok : no) + " walrus:" + white(blobId));
-      console.log("    " + dim(`${AGGREGATOR}/v1/blobs/${blobId}`));
+      const blobId = await walrusTryStore(s.lastReceipt);
+      if (blobId) {
+        const verified = await walrusVerify(blobId);
+        console.log(green("done"));
+        console.log("  " + (verified ? ok : no) + " walrus:" + white(blobId));
+        console.log("    " + dim(`${AGGREGATOR}/v1/blobs/${blobId}`));
+      } else {
+        console.log(red("publisher unreachable"));
+        console.log("  " + no + dim(" Walrus write unavailable — the on-chain verdict below is unaffected"));
+      }
       if (flags.onchain) {
         process.stdout.write(dim("  anchoring on Sui (mints a Receipt object, consensus recomputes the verdict)… "));
         try {
-          const r = anchorOnChain(s.lastReceipt, flags.claim, blobId);
+          const r = anchorOnChain(s.lastReceipt, flags.claim, blobId || "");
           console.log(green("done"));
           const verdict = r.allAuthorized
             ? green(`all_authorized: true  ${ok}`)
