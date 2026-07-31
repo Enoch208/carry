@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
+import { SuiGrpcClient } from "@mysten/sui/grpc";
 import { Transaction } from "@mysten/sui/transactions";
 import { bcs } from "@mysten/sui/bcs";
 import { toHex } from "@/lib/blake";
@@ -15,10 +15,10 @@ const ZERO = "0x0000000000000000000000000000000000000000000000000000000000000000
 export const PKG = netCfg(DEFAULT_NETWORK).packageId;
 export const POLICY = netCfg(DEFAULT_NETWORK).accessPolicy;
 
-const clients: Partial<Record<Network, SuiJsonRpcClient>> = {};
-function clientFor(network: Network): SuiJsonRpcClient {
+const clients: Partial<Record<Network, SuiGrpcClient>> = {};
+function clientFor(network: Network): SuiGrpcClient {
   const cfg = netCfg(network);
-  clients[network] ??= new SuiJsonRpcClient({ url: cfg.rpcUrl, network });
+  clients[network] ??= new SuiGrpcClient({ baseUrl: cfg.grpcUrl, network });
   return clients[network]!;
 }
 
@@ -97,10 +97,14 @@ export async function readIsAllowed(
       target: `${netCfg(network).packageId}::access::is_allowed`,
       arguments: [tx.object(policyId), tx.pure.string(agent), tx.pure.string(namespace)],
     });
-    const res = await clientFor(network).devInspectTransactionBlock({ transactionBlock: tx, sender: ZERO });
-    const ret = res.results?.[0]?.returnValues?.[0];
+    tx.setSender(ZERO);
+    const res = await clientFor(network).simulateTransaction({
+      transaction: tx,
+      include: { commandResults: true },
+    });
+    const ret = res.commandResults?.[0]?.returnValues?.[0]?.bcs;
     if (!ret) return false; // fail-closed
-    return bcs.Bool.parse(Uint8Array.from(ret[0])) === true;
+    return bcs.Bool.parse(Uint8Array.from(ret)) === true;
   } catch {
     return false;
   }
@@ -136,10 +140,9 @@ export type OnchainReceipt = {
 
 export async function getReceipt(id: string, network: Network = DEFAULT_NETWORK): Promise<OnchainReceipt | null> {
   try {
-    const res = await clientFor(network).getObject({ id, options: { showContent: true } });
-    const content = res.data?.content as { dataType?: string; fields?: Record<string, unknown> } | undefined;
-    if (!content || content.dataType !== "moveObject" || !content.fields) return null;
-    const f = content.fields;
+    const { object } = await clientFor(network).getObject({ objectId: id, include: { json: true } });
+    const f = object?.json as Record<string, unknown> | undefined;
+    if (!f) return null;
     return {
       id,
       policy: String(f.policy),
