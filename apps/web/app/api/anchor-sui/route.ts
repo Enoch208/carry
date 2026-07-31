@@ -1,7 +1,9 @@
 import { store } from "@/lib/store";
 import { anchorOnChain } from "@/lib/sui";
 import { digestHexOf } from "@/lib/blake";
-import { isDeployed, type Network } from "@/lib/networks";
+import { isDeployed, netCfg, type Network } from "@/lib/networks";
+import { buildSealed } from "@/lib/sealed";
+import { readPolicyVersion } from "@/lib/sui";
 
 const ARIA_ONCHAIN_AGENT = "aria";
 
@@ -26,9 +28,37 @@ export async function POST(req: Request) {
     // Bind the proof to the exact receipt content. Walrus mainnet has no public
     // publisher and testnet publishers can hang, so a failed write must not stop
     // the anchor — the chain's verdict does not depend on the blob existing.
-    const digestHex = digestHexOf(receipt);
+    // Seal by default: the blob a stranger can fetch carries commitments, not
+    // the user's memories. `?reveal=1` keeps the old plaintext receipt for the
+    // demo screens that show what was used.
+    const url = new URL(req.url);
+    const reveal = url.searchParams.get("reveal") === "1";
+    const network = anchorNetwork();
+
+    const published = reveal
+      ? receipt
+      : buildSealed({
+          answerId: receipt.answerId,
+          agent: ARIA_ONCHAIN_AGENT,
+          model: receipt.model ?? "unknown",
+          query: receipt.query ?? "",
+          answer: receipt.answer ?? "",
+          memories: (receipt.usedMemories ?? []).map(
+            (m: { memoryId?: string; namespace: string; content?: string }) => ({
+              memoryId: m.memoryId ?? "",
+              namespace: m.namespace,
+              content: m.content ?? "",
+            })
+          ),
+          blockedNamespaces: blocked,
+          allAuthorized: used.every((ns) => !blocked.includes(ns)),
+          policyVersion: await readPolicyVersion(netCfg(network).accessPolicy, network),
+          expiresAtMs: Date.now() + 10 * 60 * 1000,
+        }).receipt;
+
+    const digestHex = digestHexOf(published);
     const blobId = await store.walrus
-      .store(receipt, RECEIPT_EPOCHS)
+      .store(published, RECEIPT_EPOCHS)
       .then((r) => r.blobId)
       .catch(() => "");
 
@@ -41,10 +71,10 @@ export async function POST(req: Request) {
         digestHex,
         walrusBlob: blobId,
       },
-      anchorNetwork()
+      network
     );
 
-    return Response.json({ ...result, walrusBlob: blobId, digestHex, walrusStored: blobId !== "" });
+    return Response.json({ ...result, walrusBlob: blobId, digestHex, walrusStored: blobId !== "", sealed: !reveal });
   } catch (e) {
     return Response.json({ error: (e as Error).message || "on-chain anchoring failed" }, { status: 503 });
   }
