@@ -10,7 +10,7 @@
 [![npm @usecarry/cli](https://img.shields.io/npm/v/@usecarry/cli?label=%40usecarry%2Fcli&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/cli)
 [![npm @usecarry/mcp](https://img.shields.io/npm/v/@usecarry/mcp?label=%40usecarry%2Fmcp&color=cb0000&logo=npm)](https://www.npmjs.com/package/@usecarry/mcp)
 [![Docs](https://img.shields.io/badge/docs-docs.usecarry.xyz-4DA2FF)](https://docs.usecarry.xyz)
-[![Sui Mainnet](https://img.shields.io/badge/Sui-mainnet%20live-4DA2FF)](https://suiscan.xyz/mainnet/object/0x010719e5141bc53bc32c1e75acf39872d1ee535d2f2b8bcdb059e4ece13ad0a4)
+[![Sui Mainnet](https://img.shields.io/badge/Sui-mainnet%20live-4DA2FF)](https://suiscan.xyz/mainnet/object/0xeaf4e6e4e96e4f50dfcf2f4beebe3bacb766ad6cbf352b0982bd9631884032d8)
 [![Walrus](https://img.shields.io/badge/storage-Walrus%20mainnet-4DA2FF)](https://www.walrus.xyz)
 [![Seal](https://img.shields.io/badge/encryption-Seal%20via%20MemWal-2563eb)](https://github.com/MystenLabs/MemWal)
 ![Stack](https://img.shields.io/badge/Next.js%2016%20·%20React%2019%20·%20TypeScript-1f1f23)
@@ -45,9 +45,9 @@ Everything below is live right now. Click it.
 
 **On Sui mainnet.** The gate is a deployed Move package. Anchoring an answer mints a tamper-evident **`Receipt` proof object**: `anchor_receipt` recomputes the verdict on-chain, binds the proof to the exact Walrus blob via blake2b256, and links it into an append-only hash chain. **Verify any proof yourself, no wallet:**
 
-- 🔎 **[Verify a live proof ↗](https://usecarry.xyz/verify/0xca79b2314768e84ccd404da2718da883ccd2a84b62b1b1292e6dacd5e0cdec74?network=mainnet)** — reads the object from Sui, re-hashes the Walrus blob, recomputes the verdict, and confirms the policy has not moved since. All four checks green.
-- 🔎 **[Verify the receipt that lies ↗](https://usecarry.xyz/verify/0xff9a170b79ce02ebb75880a60b8da6f1b27a6a2b4016d10a5977968a8267016b?network=mainnet)** — an *authentic* proof whose recorded verdict is a refusal. It verifies, and what it certifies is that the agent was blocked.
-- Package `carry::access` → [`0x010719e5…3ad0a4`](https://suiscan.xyz/mainnet/object/0x010719e5141bc53bc32c1e75acf39872d1ee535d2f2b8bcdb059e4ece13ad0a4)
+- 🔎 **[Verify a live proof ↗](https://usecarry.xyz/verify/0x1d9f44e0b8599b199f3b313775a3a639e7d96f012d0dd01996a34c80816376b8?network=mainnet)** — reads the object from Sui, re-hashes the Walrus blob, recomputes the verdict, and confirms the policy has not moved since. All four checks green.
+- 🔎 **[Verify the receipt that lies ↗](https://usecarry.xyz/verify/0x54a6bb1e1681a6f15c815893a356c220e8828dd3e393437d8aaebc0f9182d95d?network=mainnet)** — an *authentic* proof whose recorded verdict is a refusal. It verifies, and what it certifies is that the agent was blocked.
+- Package `carry::access` → [`0xeaf4e6e4…4032d8`](https://suiscan.xyz/mainnet/object/0xeaf4e6e4e96e4f50dfcf2f4beebe3bacb766ad6cbf352b0982bd9631884032d8)
 - Honest anchor (`health`) → `all_authorized: true` → [tx `6SF3GFom…`](https://suiscan.xyz/mainnet/tx/6SF3GFomdYirhXQ5RY674TaRgqWvyyWfP8MiM6JPDpbb)
 - A receipt that lies (claims the revoked `billing`) → `all_authorized: false` — **the chain caught it** → [tx `96SAp82K…`](https://suiscan.xyz/mainnet/tx/96SAp82KZq9dW5qM2hBH7vaYfKaKfXMFXorv5bogNiLV)
 
@@ -96,6 +96,7 @@ mainnet transaction it produced, and a page you can check yourself — no screen
 | 2026-07-31 | **CLI and MCP are network-aware.** `CARRY_NETWORK` selects package, policy and aggregator; anchoring refuses to run when the Sui CLI's active env disagrees with the target chain. | [commit](https://github.com/Enoch208/carry/commit/4046f18) |
 | 2026-07-31 | **Two reliability fixes found while hardening.** A Walrus outage could hang `carry anchor` indefinitely and stop it ever reaching the chain; anchored receipts were stored for Walrus's default 5 epochs, which silently expires `/verify` links within days. | [outage fix](https://github.com/Enoch208/carry/commit/cdae85a) · [epochs fix](https://github.com/Enoch208/carry/commit/121b755) |
 
+| 2026-07-31 | **The gate is now default-deny — it was fail-open.** `is_allowed` returned true for any pair with no entry, so an unconfigured agent could read every namespace. Absent now means denied in the Move gate, the CLI and the MCP server. | [package](https://suiscan.xyz/mainnet/object/0xeaf4e6e4e96e4f50dfcf2f4beebe3bacb766ad6cbf352b0982bd9631884032d8) · [verify ↗](https://usecarry.xyz/verify/0x1d9f44e0b8599b199f3b313775a3a639e7d96f012d0dd01996a34c80816376b8?network=mainnet) |
 | 2026-07-31 | **Policy versioning closes a time-of-check/time-of-use hole.** Retrieval reads the policy, generation takes time, and a revoke landing in between used to be papered over. A receipt now cites the policy version it was computed against and consensus rejects it if the policy has moved. | [rejected on mainnet](https://suiscan.xyz/mainnet/tx/DT3cCP6ubZiwKUFnCXCK85BG7rXJeX2PxbQ21kdwrRXo) · [package](https://suiscan.xyz/mainnet/object/0x010719e5141bc53bc32c1e75acf39872d1ee535d2f2b8bcdb059e4ece13ad0a4) |
 | 2026-07-31 | **Single-use nonces and receipt expiry.** An authorized receipt cannot be anchored twice, and a stale one cannot be presented later. | [honest anchor](https://suiscan.xyz/mainnet/tx/6SF3GFomdYirhXQ5RY674TaRgqWvyyWfP8MiM6JPDpbb) · [verify ↗](https://usecarry.xyz/verify/0xca79b2314768e84ccd404da2718da883ccd2a84b62b1b1292e6dacd5e0cdec74?network=mainnet) |
 | 2026-07-31 | **Portable `CarryVault`.** A wallet owns the vault, the vault names the Walrus manifest and its digest, and the manifest lists the memory blobs — so a wallet alone is enough to recover memory on another device. | [vault](https://suiscan.xyz/mainnet/object/0x7d7afe98ab2c57ca0817e3b58128bfdf2cf2a86c5f2474024378c11b1f702c48) · [manifest ↗](https://aggregator.walrus-mainnet.walrus.space/v1/blobs/ddzYqN4WlZJvZ886HPeElpK_nc3k03LG9ke2Zzr_MGU) |

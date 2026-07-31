@@ -1,40 +1,39 @@
 {
   "network": "mainnet",
   "module": "carry::access",
-  "packageId": "0x010719e5141bc53bc32c1e75acf39872d1ee535d2f2b8bcdb059e4ece13ad0a4",
-  "accessPolicy": "0xf84eca67c85149ba18f581907dc5d95b9e3aa3b0e0cb3490c946e41de428a673",
-  "ownerCap": "0xfbc0fbe4611f805da1e5054751157c50ceff099fd40e366f867b5a8ac0d072c1",
+  "packageId": "0xeaf4e6e4e96e4f50dfcf2f4beebe3bacb766ad6cbf352b0982bd9631884032d8",
+  "accessPolicy": "0x53e6e9f02cce2b106fb0e1e17280e7a0c94ba8ebb0b0fadf09e886cfd9b1a288",
+  "ownerCap": "0x247694aa7a6b9ff446235992ef7ea1c4dd27fbd7a88268c298739f83f7963317",
   "owner": "0xf0a0cf66c5469a9dbe682841365b61ae33e166400615a4666569696d0a5bf30f",
   "publisher": "0x4965df4b0b99b3df55de3eef21c4ac14744eddf6a2d4e187018f76c7b93f906a",
   "displayReceipt": "0x4155ae03a4742624844718f3dc7487f204dc6329950730a52f45106b414c6a0e",
   "upgradeCap": "0xdd07796ac778c7c71e3f1e27a838275b2dc5845d287ace42e77e3207c16e594f",
   "clock": "0x6",
-  "publishDigest": "HVfryV2ykWFTRVCir7BJbVUR4CK93hfE7NgPESAkaVFc",
-  "createDigest": "BrwpXSLhuAXe9VCL76STGDa899LBVdY3w2gfkVNRWDMd",
-  "note": "carry::access v3 on Sui mainnet. The gate is enforced on-chain and a receipt is only accepted while the policy it cites is still current, its nonce is unspent and it has not expired.",
+  "publishDigest": "5oY4ExNuSEG692h38pirLvm4d63podLiWW9yaRuQ89ER",
+  "createDigest": "8nsT83MaGmyb7BMvjKJJZCqja6twQF1xRLD7QVEJoKNZ",
+  "note": "carry::access v4 on Sui mainnet. The gate is default-deny: an agent is granted a namespace explicitly or it reads nothing. Receipts are versioned, nonce-protected and expiring.",
   "proofTxns": {
-    "setAccess_revoke_aria_billing": "5HmhSv9eTLg16Z1sHTRzcgQXo9c6CMfe6L1cCy2b7Qzb",
-    "anchor_honest_all_authorized_true": "6SF3GFomdYirhXQ5RY674TaRgqWvyyWfP8MiM6JPDpbb",
-    "anchor_tampered_all_authorized_false": "96SAp82KZq9dW5qM2hBH7vaYfKaKfXMFXorv5bogNiLV",
-    "rejected_stale_policy_version": "DT3cCP6ubZiwKUFnCXCK85BG7rXJeX2PxbQ21kdwrRXo",
-    "create_vault": "GvDe6QvyKafaYNGvzMrBTy3rZDJAkMuXG26BbPgGVnzT"
+    "grant_aria_health": "7KGMNYHh8v74",
+    "grant_aria_diet": "rTnL8c1nTWYF",
+    "grant_aria_project": "35taKZrmGAQ7",
+    "anchor_honest_all_authorized_true": "6ny9zAMtXwxzc1LuW3UqpDeQM8QdswuvcwPu8exfSmqt",
+    "anchor_tampered_all_authorized_false": "GfGVhssu6SH5mDwmZd9RCupjuH5dZpeCFu3u19jqvZEX"
   },
   "exampleReceipts": {
-    "honest_all_authorized_true": "0xca79b2314768e84ccd404da2718da883ccd2a84b62b1b1292e6dacd5e0cdec74",
-    "tampered_all_authorized_false": "0xff9a170b79ce02ebb75880a60b8da6f1b27a6a2b4016d10a5977968a8267016b",
-    "walrusBlob": "VftF9eLPMTYNfQ1zmsojrKVRhAQffftTBT2Kc1gWxTo",
-    "verifyUrl": "https://usecarry.xyz/verify/0xca79b2314768e84ccd404da2718da883ccd2a84b62b1b1292e6dacd5e0cdec74?network=mainnet",
-    "note": "Four checks pass: hash chain, content binding, authorization recomputed, and the cited policy version still current."
+    "honest_all_authorized_true": "0x1d9f44e0b8599b199f3b313775a3a639e7d96f012d0dd01996a34c80816376b8",
+    "tampered_all_authorized_false": "0x54a6bb1e1681a6f15c815893a356c220e8828dd3e393437d8aaebc0f9182d95d",
+    "walrusBlob": "3R8UiSKOyImnSmyT32_bwkFI33RWGxA4khpzmezQt1E",
+    "verifyUrl": "https://usecarry.xyz/verify/0x1d9f44e0b8599b199f3b313775a3a639e7d96f012d0dd01996a34c80816376b8?network=mainnet",
+    "note": "Both pass all four checks. The tampered one claims `billing`, which was never granted \u2014 under default-deny it is refused without needing an explicit revoke."
   },
   "gateReads": {
-    "aria/billing": false,
     "aria/health": true,
-    "verifiedVia": [
-      "https://rpc-mainnet.suiscan.xyz",
-      "https://sui-rpc.publicnode.com",
-      "https://mainnet.suiet.app",
-      "https://sui-mainnet.nodeinfra.com"
-    ]
+    "aria/diet": true,
+    "aria/project": true,
+    "aria/billing": false,
+    "stranger/health": false,
+    "aria/payroll": false,
+    "note": "Read from mainnet after granting aria three namespaces. An unconfigured agent and an unknown namespace both read false \u2014 before the grants, every pair read false."
   },
   "walrus": {
     "network": "mainnet",
@@ -43,7 +42,7 @@
     "storeCostWal": 0.299,
     "epochsPurchased": 53
   },
-  "policyVersion": 2,
+  "policyVersion": 4,
   "vault": {
     "carryVault": "0x7d7afe98ab2c57ca0817e3b58128bfdf2cf2a86c5f2474024378c11b1f702c48",
     "manifestBlob": "ddzYqN4WlZJvZ886HPeElpK_nc3k03LG9ke2Zzr_MGU",
@@ -56,24 +55,8 @@
     "replayed_nonce_rejected": "anchoring twice with the same nonce aborts with code 2 (ENonceAlreadyUsed)"
   },
   "previousVersion": {
-    "packageId": "0x77bf6a36c2236579f084d7c66ad16b3da3277982d958e43f3d716c81ebe43f61",
-    "accessPolicy": "0xc9bbb72830abc30fb995e57e3a752b9c79ffd8ff66f01357a42aeb95224be4b7",
-    "ownerCap": "0x62fb759b8a3f974584d14f8fc835024a3f880bb157b6b474129ca09d6a5fd39e",
-    "note": "v2 \u2014 no policy versioning, nonce or expiry. Receipts minted here still verify; the verifier resolves each receipt's package from its own type.",
-    "exampleReceipts": {
-      "honest_all_authorized_true": "0x70a997c909dbe0c0018e4de971a3d4a29287b788d9991de2964461ed2e713cdf",
-      "tampered_all_authorized_false": "0xe888f0e38ee1c8ab8b4bb917a6d5902356a9464fb73d5511ec5d16b2d1fd03b7",
-      "walrusBlob": "VftF9eLPMTYNfQ1zmsojrKVRhAQffftTBT2Kc1gWxTo",
-      "walrusBlobObject": "0x619d7b698e82a760d3aaa956e83db313cee8d7f91b251a789db72df1057c3bba",
-      "walrusExpiryEpoch": 89,
-      "verifyUrl": "https://usecarry.xyz/verify/0x70a997c909dbe0c0018e4de971a3d4a29287b788d9991de2964461ed2e713cdf?network=mainnet",
-      "verifyUrlTampered": "https://usecarry.xyz/verify/0xe888f0e38ee1c8ab8b4bb917a6d5902356a9464fb73d5511ec5d16b2d1fd03b7?network=mainnet",
-      "note": "Both receipts bind to the same Walrus mainnet blob and pass all three checks. The tampered one verifies as an authentic receipt whose recorded verdict is all_authorized=false \u2014 the proof is honest about the blocked claim.",
-      "supersedes": {
-        "honest": "0x58e54937906a82d9faea4f542dba936fea3211aeed0dd42d4cb632d70a222d44",
-        "tampered": "0x7c51d9403e8a620fa07215b98f5a852bbd58e81b4fe229e17682c03b65bbe653",
-        "why": "anchored during the Walrus publisher outage with no blob, so their content-binding check cannot pass"
-      }
-    }
+    "packageId": "0x010719e5141bc53bc32c1e75acf39872d1ee535d2f2b8bcdb059e4ece13ad0a4",
+    "accessPolicy": "0xf84eca67c85149ba18f581907dc5d95b9e3aa3b0e0cb3490c946e41de428a673",
+    "note": "v3 \u2014 versioned and replay-protected, but the gate was still default-allow. Receipts minted here keep verifying; the verifier resolves each receipt's package from its own type."
   }
 }
